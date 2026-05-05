@@ -74,14 +74,21 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
           if (entry.isIntersecting) {
             const articleId = entry.target.getAttribute("data-article-id");
             const articleSlug = entry.target.getAttribute("data-article-slug");
-            if (articleId && articleId !== visibleArticle) {
-              setVisibleArticle(articleId);
-              // Update URL without a page reload
-              if (articleSlug) {
-                window.history.replaceState(null, "", `/${articleSlug}`);
-              } else {
-                window.history.replaceState(null, "", `/article/${articleId}`);
-              }
+            
+            if (articleId) {
+              // Use functional state update to avoid dependency issues
+              setVisibleArticle((prevVisibleId) => {
+                // Only update URL and state if the article actually changed
+                if (prevVisibleId !== articleId) {
+                  if (articleSlug) {
+                    window.history.replaceState(null, "", `/${articleSlug}`);
+                  } else {
+                    window.history.replaceState(null, "", `/article/${articleId}`);
+                  }
+                  return articleId;
+                }
+                return prevVisibleId;
+              });
             }
           }
         });
@@ -97,7 +104,7 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
     return () => {
       if (visibilityObserverRef.current) visibilityObserverRef.current.disconnect();
     };
-  }, [articles, visibleArticle]);
+  }, [articles]); // Removed visibleArticle from dependencies
 
   return (
     <>

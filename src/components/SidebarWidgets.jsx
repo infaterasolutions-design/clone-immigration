@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getSidebarData } from "@/app/actions/sidebar";
 
 export default function SidebarWidgets({ className = "", showLiveCoverage = true, initialData }) {
@@ -12,30 +12,31 @@ export default function SidebarWidgets({ className = "", showLiveCoverage = true
   const [liveEvents, setLiveEvents] = useState(initialData?.liveEvents || []);
   const [fetchFailed, setFetchFailed] = useState(false);
 
+  // Define outside useEffect so the Retry button can also call it
+  const fetchSidebarData = useCallback(async () => {
+    try {
+      setFetchFailed(false);
+      const { latestNews: latest, mostViewed: viewed, liveEvents: events } = await getSidebarData();
+      setLatestNews(latest);
+      setMostViewed(viewed);
+      setLiveEvents(events);
+    } catch (err) {
+      console.error("Sidebar fetch failed:", err);
+      setFetchFailed(true);
+    }
+  }, []);
+
   useEffect(() => {
     // Skip client-side fetch if we already have server-provided data
     if (initialData) return;
 
     let timeoutId;
-    async function fetchData() {
-      try {
-        // Set a 10-second timeout
-        timeoutId = setTimeout(() => setFetchFailed(true), 10000);
-        const { latestNews: latest, mostViewed: viewed, liveEvents: events } = await getSidebarData();
-        clearTimeout(timeoutId);
-        setLatestNews(latest);
-        setMostViewed(viewed);
-        setLiveEvents(events);
-      } catch (err) {
-        console.error("Sidebar fetch failed:", err);
-        clearTimeout(timeoutId);
-        setFetchFailed(true);
-      }
-    }
-    fetchData();
+    timeoutId = setTimeout(() => setFetchFailed(true), 10000);
+
+    fetchSidebarData().finally(() => clearTimeout(timeoutId));
 
     return () => clearTimeout(timeoutId);
-  }, [initialData]);
+  }, [initialData, fetchSidebarData]);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -98,7 +99,14 @@ export default function SidebarWidgets({ className = "", showLiveCoverage = true
                 </h4>
               </Link>
             )) : (
-              <p className="text-sm text-slate-500">{fetchFailed ? "Unable to load latest news." : "Loading latest news..."}</p>
+              <div className="text-sm text-slate-500">
+                <p>{fetchFailed ? "Unable to load latest news." : "Loading latest news..."}</p>
+                {fetchFailed && (
+                  <button onClick={fetchSidebarData} className="mt-2 text-xs font-bold text-primary hover:text-primary/80 underline underline-offset-2 transition-colors">
+                    Retry
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -120,7 +128,14 @@ export default function SidebarWidgets({ className = "", showLiveCoverage = true
                 </div>
               </div>
             )) : (
-              <p className="text-sm text-slate-500">{fetchFailed ? "Unable to load most viewed." : "Loading most viewed..."}</p>
+              <div className="text-sm text-slate-500">
+                <p>{fetchFailed ? "Unable to load most viewed." : "Loading most viewed..."}</p>
+                {fetchFailed && (
+                  <button onClick={fetchSidebarData} className="mt-2 text-xs font-bold text-primary hover:text-primary/80 underline underline-offset-2 transition-colors">
+                    Retry
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

@@ -4,22 +4,38 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { getSidebarData } from "@/app/actions/sidebar";
 
-export default function SidebarWidgets({ className = "", showLiveCoverage = true }) {
+export default function SidebarWidgets({ className = "", showLiveCoverage = true, initialData }) {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [latestNews, setLatestNews] = useState([]);
-  const [mostViewed, setMostViewed] = useState([]);
-  const [liveEvents, setLiveEvents] = useState([]);
+  const [latestNews, setLatestNews] = useState(initialData?.latestNews || []);
+  const [mostViewed, setMostViewed] = useState(initialData?.mostViewed || []);
+  const [liveEvents, setLiveEvents] = useState(initialData?.liveEvents || []);
+  const [fetchFailed, setFetchFailed] = useState(false);
 
   useEffect(() => {
+    // Skip client-side fetch if we already have server-provided data
+    if (initialData) return;
+
+    let timeoutId;
     async function fetchData() {
-      const { latestNews: latest, mostViewed: viewed, liveEvents: events } = await getSidebarData();
-      setLatestNews(latest);
-      setMostViewed(viewed);
-      setLiveEvents(events);
+      try {
+        // Set a 10-second timeout
+        timeoutId = setTimeout(() => setFetchFailed(true), 10000);
+        const { latestNews: latest, mostViewed: viewed, liveEvents: events } = await getSidebarData();
+        clearTimeout(timeoutId);
+        setLatestNews(latest);
+        setMostViewed(viewed);
+        setLiveEvents(events);
+      } catch (err) {
+        console.error("Sidebar fetch failed:", err);
+        clearTimeout(timeoutId);
+        setFetchFailed(true);
+      }
     }
     fetchData();
-  }, []);
+
+    return () => clearTimeout(timeoutId);
+  }, [initialData]);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -82,7 +98,7 @@ export default function SidebarWidgets({ className = "", showLiveCoverage = true
                 </h4>
               </Link>
             )) : (
-              <p className="text-sm text-slate-500">Loading latest news...</p>
+              <p className="text-sm text-slate-500">{fetchFailed ? "Unable to load latest news." : "Loading latest news..."}</p>
             )}
           </div>
         </div>
@@ -104,7 +120,7 @@ export default function SidebarWidgets({ className = "", showLiveCoverage = true
                 </div>
               </div>
             )) : (
-              <p className="text-sm text-slate-500">Loading most viewed...</p>
+              <p className="text-sm text-slate-500">{fetchFailed ? "Unable to load most viewed." : "Loading most viewed..."}</p>
             )}
           </div>
         </div>

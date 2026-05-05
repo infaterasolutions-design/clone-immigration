@@ -1,5 +1,6 @@
 import InfiniteScrollContainer from "@/components/InfiniteScrollContainer";
 import { fetchArticleInitialDataBySlug } from "@/app/actions/article";
+import { getSidebarData } from "@/app/actions/sidebar";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -52,15 +53,18 @@ export async function generateMetadata({ params }) {
 export default async function ArticlePage({ params }) {
   const { slug } = await params;
   
-  // 1. Fetch initial SSR article
-  const article = await fetchArticleInitialDataBySlug(slug);
+  // Fetch article and sidebar data in parallel on the server
+  const [article, sidebarData] = await Promise.all([
+    fetchArticleInitialDataBySlug(slug),
+    getSidebarData(),
+  ]);
 
   if (!article) {
     return notFound();
   }
   
-  // 2. Delegate rendering entirely to the smart client orchestrator
   return (
-    <InfiniteScrollContainer initialArticle={article} />
+    <InfiniteScrollContainer initialArticle={article} sidebarData={sidebarData} />
   );
 }
+

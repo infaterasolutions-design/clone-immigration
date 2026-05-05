@@ -8,7 +8,7 @@ import { fetchNextArticleAction } from "@/app/actions/article";
 
 const MAX_ARTICLES = 4;
 
-export default function InfiniteScrollContainer({ initialArticle }) {
+export default function InfiniteScrollContainer({ initialArticle, sidebarData }) {
   const [articles, setArticles] = useState([initialArticle]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -115,7 +115,7 @@ export default function InfiniteScrollContainer({ initialArticle }) {
           {(!hasMore || articles.length >= MAX_ARTICLES) && (
             <>
               <div className="block lg:hidden mt-12 mb-16">
-                <SidebarWidgets className="w-full" />
+                <SidebarWidgets className="w-full" initialData={sidebarData} />
               </div>
               <div className="py-20 text-center text-slate-400 text-sm font-medium">
                 You've reached the end of the feed.
@@ -126,7 +126,7 @@ export default function InfiniteScrollContainer({ initialArticle }) {
 
         {/* Sidebar Section (Desktop) */}
         <div className="hidden lg:block lg:col-span-4">
-          <SidebarWidgets className="w-full" />
+          <SidebarWidgets className="w-full" initialData={sidebarData} />
         </div>
       </div>
 

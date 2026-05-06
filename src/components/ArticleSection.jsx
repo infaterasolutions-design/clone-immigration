@@ -359,11 +359,14 @@ export default function ArticleSection({ article, isFirst = false }) {
           <div className="rounded-xl shadow-2xl shadow-slate-200/50 relative group">
             <div className="overflow-hidden rounded-xl">
               <Image 
-                width={1200} height={675}
+                src={article.mainImage || FALLBACK_IMAGE}
+                width={1200} 
+                height={675}
+                quality={75}
+                priority={true}
+                fetchPriority="high"
                 alt={article.title}
                 className="w-full aspect-[16/9] object-cover" 
-                src={article.mainImage || FALLBACK_IMAGE}
-                priority={isFirst}
               />
             </div>
             {article.imageCaption && (

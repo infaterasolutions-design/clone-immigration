@@ -67,7 +67,7 @@ export default async function ArticlePage({ params }) {
   }
 
   // Pre-fetch the second article on the server so the infinite scroll never hangs on first load
-  const nextArticle = await fetchNextArticleAction(article.id);
+  const nextArticle = await fetchNextArticleAction(article.slug, article.published_at);
   
   return (
     <InfiniteScrollContainer initialArticle={article} sidebarData={sidebarData} nextArticle={nextArticle} />

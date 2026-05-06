@@ -27,8 +27,8 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
 
     try {
       setIsLoading(true);
-      const currentLastId = articles[articles.length - 1].id;
-      const nextArticle = await fetchNextArticleAction(currentLastId);
+      const currentLastArticle = articles[articles.length - 1];
+      const nextArticle = await fetchNextArticleAction(currentLastArticle.slug, currentLastArticle.published_at);
 
       if (nextArticle) {
         setArticles((prev) => [...prev, nextArticle]);
@@ -80,11 +80,13 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
               setVisibleArticle((prevVisibleId) => {
                 // Only update URL and state if the article actually changed
                 if (prevVisibleId !== articleId) {
-                  if (articleSlug) {
-                    window.history.replaceState(null, "", `/${articleSlug}`);
-                  } else {
-                    window.history.replaceState(null, "", `/article/${articleId}`);
-                  }
+                  setTimeout(() => {
+                    if (articleSlug) {
+                      window.history.replaceState(null, "", `/${articleSlug}`);
+                    } else {
+                      window.history.replaceState(null, "", `/article/${articleId}`);
+                    }
+                  }, 0);
                   return articleId;
                 }
                 return prevVisibleId;

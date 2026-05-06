@@ -67,25 +67,27 @@ async function resolveArticle(article) {
   return mapDbToFrontend(article);
 }
 
-export async function fetchNextArticleAction(currentId) {
+export async function fetchNextArticleAction(slug, publishedAt) {
+  if (!slug || !publishedAt) return null;
+
   await new Promise((resolve) => setTimeout(resolve, 800));
   
-  const { data: currentArt } = await supabase.from('articles').select('published_at').eq('id', currentId).single();
-  // Only pull active articles that have passed their global release schedule threshold
-  let query = supabase.from('articles')
+  const { data, error } = await supabase.from('articles')
     .select(ARTICLE_SELECT)
     .eq('status', 'published')
-    .lte('published_at', new Date().toISOString());
-  
-  if (currentArt?.published_at) {
-     query = query.lt('published_at', currentArt.published_at).order('published_at', { ascending: false }).limit(1);
-  } else {
-     // fallback if ordered by something else
-     query = query.neq('id', currentId).order('published_at', { ascending: false }).limit(1);
+    .eq('is_indexed', true)
+    .gt('published_at', publishedAt)
+    .neq('slug', slug)
+    .order('published_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+    
+  if (error) {
+    console.error('fetchNextArticle error:', error);
+    return null;
   }
   
-  const { data, error } = await query.single();
-  if (error || !data) return null;
+  if (!data) return null;
   
   return resolveArticle(data);
 }

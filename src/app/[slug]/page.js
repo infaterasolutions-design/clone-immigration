@@ -23,8 +23,9 @@ export async function generateMetadata({ params }) {
 
   const title = article.title;
   const description = article.sub_title || `Read the latest on ${article.category_label || "US Immigration"} - United States Immigration News`;
-  const image = article.main_image || `${SITE_URL}/images/logo.png`;
+  const rawImage = article.main_image || `${SITE_URL}/images/logo.png`;
   const url = `${SITE_URL}/${article.slug}`;
+  const ogImageUrl = `${SITE_URL}/_next/image?url=${encodeURIComponent(rawImage)}&w=1200&q=75`;
 
   return {
     title: `${title} - United States Immigration News`,
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }) {
       siteName: "United States Immigration News",
       images: [
         {
-          url: image,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: title,
@@ -48,7 +49,14 @@ export async function generateMetadata({ params }) {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
     },
   };
 }

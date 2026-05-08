@@ -10,9 +10,6 @@ export async function generateMetadata({ params }) {
   
   return {
     title: `${category.name} - United States Immigration News`,
-    other: {
-      'fb:app_id': '2003958383541773',
-    },
   };
 }
 

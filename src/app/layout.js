@@ -29,9 +29,6 @@ import DelayedGTM from '@/components/DelayedGTM';
 export const metadata = {
   title: "US Immigration News & Updates | Visas, Green Cards, USCIS & ICE News",
   description: "Get the latest USA immigration news, visa updates, green card processing times, USCIS announcements, and ICE policy changes. Trusted daily immigration updates and guides.",
-  other: {
-    'fb:app_id': '2003958383541773',
-  },
 };
 
 export default function RootLayout({ children }) {
@@ -42,6 +39,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable} ${poppins.variable}`} suppressHydrationWarning={true}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta property="fb:app_id" content="2003958383541773" />
         <link rel="preconnect" href="https://elbxclhtmlbdlegsfzqh.supabase.co" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://elbxclhtmlbdlegsfzqh.supabase.co" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

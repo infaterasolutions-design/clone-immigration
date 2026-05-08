@@ -144,9 +144,17 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
       </div>
 
       {/* Fixed Bottom "Up Next" Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-100 px-6 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] md:block hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-100 px-3 sm:px-6 py-2.5 sm:py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
         <div className="max-w-[1298px] mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 sm:gap-6 min-w-0">
+            {/* Mobile: one line */}
+            <div className="flex sm:hidden items-center gap-1 min-w-0 max-w-[160px]">
+              <span className="text-[10px] font-extrabold text-primary uppercase tracking-widest whitespace-nowrap">Reading:</span>
+              <span className="text-[10px] font-bold truncate text-slate-800">
+                {articles.find((a) => a.id === visibleArticle)?.title || articles[0].title}
+              </span>
+            </div>
+            {/* Desktop: two lines (unchanged) */}
             <div className="hidden sm:block">
               <div className="text-[10px] font-extrabold text-primary uppercase tracking-widest mb-1">Currently Reading</div>
               <div className="text-sm font-bold max-w-xs truncate text-slate-800">
@@ -155,12 +163,12 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
             </div>
             <div className="h-8 w-px bg-slate-200"></div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-slate-400">Article {articles.findIndex((a) => a.id === visibleArticle) + 1} of {hasMore ? "4" : articles.length}</span>
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 whitespace-nowrap">Article {articles.findIndex((a) => a.id === visibleArticle) + 1} of {hasMore ? "4" : articles.length}</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
              <button 
-               className="px-6 py-2 bg-primary text-on-primary rounded-full text-xs font-bold hover:scale-105 transition-transform opacity-50 cursor-not-allowed"
+               className="px-3 sm:px-6 py-1.5 sm:py-2 bg-primary text-on-primary rounded-full text-[10px] sm:text-xs font-bold hover:scale-105 transition-transform opacity-50 cursor-not-allowed"
                disabled
              >
                Next Story

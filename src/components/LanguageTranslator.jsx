@@ -1,10 +1,17 @@
 "use client";
 import { useEffect, useState, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function LanguageTranslator() {
   const [isOpen, setIsOpen] = useState(false);
   const [dynamicLanguages, setDynamicLanguages] = useState([]);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const pathname = usePathname();
+
+  const isArticlePage = pathname !== "/" &&
+    !pathname.startsWith("/category") &&
+    !pathname.startsWith("/live-updates") &&
+    !pathname.startsWith("/admin");
 
   // Only load Google Translate when user clicks the button
   const loadTranslateScript = useCallback(() => {
@@ -64,7 +71,7 @@ export default function LanguageTranslator() {
   };
 
   return (
-    <div className="fixed bottom-6 left-6 z-[60]">
+    <div className={`fixed ${isArticlePage ? 'bottom-16' : 'bottom-6'} left-6 z-[60]`}>
       {/* Hidden Native Google Translate Element */}
       <div id="google_translate_element" className="hidden"></div>
       

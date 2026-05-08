@@ -9,7 +9,10 @@ export async function generateMetadata({ params }) {
   if (!category) return { title: 'Not Found' };
   
   return {
-    title: `${category.name} - United States Immigration News`
+    title: `${category.name} - United States Immigration News`,
+    other: {
+      'fb:app_id': '2003958383541773',
+    },
   };
 }
 

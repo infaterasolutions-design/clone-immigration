@@ -4,6 +4,9 @@ import LiveUpdatesClient from "./LiveUpdatesClient";
 export const metadata = {
   title: "Live News Updates - United States Immigration News",
   description: "Follow the latest breaking developments on major immigration policies and impactful global events as they happen.",
+  other: {
+    'fb:app_id': '2003958383541773',
+  },
 };
 
 export default async function LiveUpdatesIndexPage() {

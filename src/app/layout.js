@@ -29,6 +29,9 @@ import DelayedGTM from '@/components/DelayedGTM';
 export const metadata = {
   title: "US Immigration News & Updates | Visas, Green Cards, USCIS & ICE News",
   description: "Get the latest USA immigration news, visa updates, green card processing times, USCIS announcements, and ICE policy changes. Trusted daily immigration updates and guides.",
+  other: {
+    'fb:app_id': '2003958383541773',
+  },
 };
 
 export default function RootLayout({ children }) {

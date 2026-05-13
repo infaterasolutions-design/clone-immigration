@@ -5,10 +5,33 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getCategories } from "@/lib/categoryConfig";
 import { subscribeEmail } from "@/app/actions/subscribe";
-
+import { FaXTwitter, FaLinkedinIn, FaFacebook, FaYoutube, FaInstagram } from 'react-icons/fa6';
 export default function Header() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const headerRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
+
+  const openMenu = () => {
+    setMenuOpen(true);
+    setSearchOpen(false);
+  };
+
+  const openSearch = () => {
+    setSearchOpen(true);
+    setMenuOpen(false);
+  };
+
+  const closeAll = () => {
+    setMenuOpen(false);
+    setSearchOpen(false);
+    setSearchQuery('');
+    setSuggestions([]);
+  };
   const [expandedSlugs, setExpandedSlugs] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -41,7 +64,7 @@ export default function Header() {
 
   // Lock body scroll when menu is open
   useEffect(() => {
-    if (menuOpen) {
+    if (menuOpen || searchOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -49,7 +72,7 @@ export default function Header() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [menuOpen]);
+  }, [menuOpen, searchOpen]);
 
   // Check voice search support and detect iOS on mount
   useEffect(() => {
@@ -76,6 +99,9 @@ export default function Header() {
 
   const closeMenu = useCallback(() => {
     setMenuOpen(false);
+    setSearchOpen(false);
+    setSearchQuery('');
+    setSuggestions([]);
     setExpandedSlugs({});
   }, []);
 
@@ -113,7 +139,7 @@ export default function Header() {
     if (!voiceSearchSupported) {
       if (isIOS) {
         // Open mobile menu if not open, focus search input, show guide
-        if (!menuOpen) setMenuOpen(true);
+        if (!searchOpen) openSearch();
         setShowDictationGuide(true);
         setTimeout(() => {
           if (mobileSearchInputRef.current) {
@@ -198,10 +224,59 @@ export default function Header() {
     }
   };
 
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        setSuggestions(data.results || []);
+      } catch (err) {
+        setSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!headerRef.current?.contains(e.target) &&
+          !dropdownRef.current?.contains(e.target)) {
+        closeAll();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        closeAll();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [searchOpen]);
+
   return (
     <>
       {/* ===== HEADER BAR ===== */}
-      <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200">
+      <header ref={headerRef} className="sticky top-0 z-50 w-full bg-white border-b border-slate-200">
         <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 py-2 md:py-3 min-h-[60px]">
           
           {/* Left: Logo */}
@@ -288,16 +363,16 @@ export default function Header() {
               </button>
               <button 
                 className="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-primary rounded-full hover:bg-slate-50 transition-colors"
-                onClick={() => setMenuOpen(!menuOpen)} // Opens menu where mobile search bar is
+                onClick={searchOpen ? closeAll : openSearch}
               >
-                <span className="material-symbols-outlined text-[22px]">search</span>
+                <span className="material-symbols-outlined text-[22px]">{searchOpen ? "close" : "search"}</span>
               </button>
             </div>
 
             {/* Mobile: Hamburger / Close */}
             <button
               className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-500 hover:text-primary rounded-lg transition-colors"
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={menuOpen ? closeAll : openMenu}
               aria-label="Toggle navigation menu"
             >
               <span className="material-symbols-outlined text-[24px]">
@@ -316,9 +391,86 @@ export default function Header() {
         </div>
       </header>
 
+      {/* ===== SEARCH DROPDOWN ===== */}
+      <div 
+        ref={dropdownRef}
+        className="fixed left-0 right-0 z-40 bg-white shadow-xl border-b border-slate-200 lg:hidden"
+        style={{
+          top: '60px',
+          maxHeight: searchOpen ? '400px' : '0',
+          opacity: searchOpen ? '1' : '0',
+          transform: searchOpen ? 'translateY(0)' : 'translateY(-8px)',
+          pointerEvents: searchOpen ? 'all' : 'none',
+          overflow: 'hidden',
+          transition: 'max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        <div className="max-w-screen-2xl mx-auto">
+          {/* Search Input Row */}
+          <div className="w-full bg-white border-b border-black/5 p-[12px_20px] flex items-center gap-3">
+            <span className="material-symbols-outlined text-[18px] text-slate-400 select-none">search</span>
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="w-full border-none outline-none bg-transparent text-[16px] text-slate-900 placeholder-slate-400"
+              placeholder="Search immigration news..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery.length > 0 && (
+              <button 
+                onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            )}
+          </div>
+          
+          {/* Live Suggestions List */}
+          <div className="border-t border-black/5 max-h-[320px] overflow-y-auto py-2">
+            {isSearching && (
+              <div className="p-4 text-center text-slate-500 text-sm">Searching...</div>
+            )}
+            
+            {!isSearching && suggestions.length > 0 && (
+              <ul>
+                {suggestions.map((item) => (
+                  <li key={item.id}>
+                    <Link 
+                      href={`/${item.slug}`} 
+                      onClick={closeAll}
+                      className="flex justify-between items-center px-5 py-2.5 cursor-pointer transition-colors hover:bg-slate-50"
+                    >
+                      <span className="text-[14px] text-primary font-normal truncate pr-4">{item.title}</span>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-black/5 text-slate-500 whitespace-nowrap ml-3">{item.category}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            
+            {!isSearching && searchQuery.length >= 2 && suggestions.length === 0 && (
+              <div className="p-4 text-center text-slate-500 text-sm">No results for "{searchQuery}"</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ===== SEARCH BACKDROP OVERLAY ===== */}
+      <div 
+        className="fixed inset-0 z-30 bg-black/25 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden"
+        style={{
+          top: '60px',
+          opacity: searchOpen ? '1' : '0',
+          pointerEvents: searchOpen ? 'all' : 'none'
+        }}
+        onClick={closeAll}
+      />
+
       {/* ===== MOBILE MENU OVERLAY ===== */}
       {menuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[60px] z-[998] bg-black/30 backdrop-blur-sm" onClick={closeMenu} />
+        <div className="lg:hidden fixed inset-0 top-[60px] z-[998] bg-black/30 backdrop-blur-sm" onClick={closeAll} />
       )}
 
       {/* ===== MOBILE SLIDE-IN MENU ===== */}
@@ -328,51 +480,6 @@ export default function Header() {
         }`}
         style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" }}
       >
-        
-        {/* Mobile Search Bar inside Menu */}
-        <div className="p-4 border-b border-slate-100 bg-slate-50">
-          
-          {/* iOS Dictation Guide */}
-          {showDictationGuide && (
-            <div className="mb-3 bg-blue-50 border border-blue-200 p-3 flex items-start gap-3 animate-in fade-in duration-300">
-              <span className="material-symbols-outlined text-blue-600 text-xl mt-0.5">info</span>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-blue-900">Tap the microphone on your keyboard</p>
-                <p className="text-xs text-blue-700 mt-1">Look for the 🎙️ icon on your iOS keyboard to use voice dictation</p>
-              </div>
-              <button onClick={() => setShowDictationGuide(false)} className="text-blue-400 hover:text-blue-600">
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-          )}
-          
-          <form 
-            onSubmit={handleSearchSubmit} 
-            className={`flex items-center bg-white px-3 py-2 border transition-all duration-300 ease-in-out rounded-full shadow-inner ${isSearchFocused ? 'border-primary ring-2 ring-primary/20' : 'border-slate-200'}`}
-          >
-            <button type="submit" className="text-slate-400 hover:text-primary transition-colors flex items-center justify-center">
-              <span className="material-symbols-outlined text-[20px]">search</span>
-            </button>
-            <input 
-              ref={mobileSearchInputRef}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-              className="bg-transparent border-none focus:ring-0 text-[16px] w-full outline-none mx-2 text-slate-700" 
-              placeholder="Search..." 
-              type="text" 
-            />
-            <button 
-              type="button" 
-              onClick={startVoiceSearch}
-              className={`flex items-center justify-center transition-colors ${isListening ? 'text-red-500 animate-pulse' : 'text-slate-400 hover:text-primary'}`}
-            >
-              <span className="material-symbols-outlined text-[20px]">mic</span>
-            </button>
-          </form>
-        </div>
-
         {/* Home */}
         <Link
           href="/"
@@ -435,24 +542,33 @@ export default function Header() {
           </div>
         ))}
 
-        {/* Mobile Navbar Subscribe Block */}
-        <div className="p-5 mt-4 mx-4 mb-20 bg-primary text-white rounded-xl shadow-lg border border-primary-container/20">
-            <h3 className="text-lg font-extrabold headline-font mb-2">Global Briefing</h3>
-            <p className="text-sm mb-4 opacity-90 leading-relaxed">Get critical immigration news delivered to your inbox weekly.</p>
-            <form onSubmit={handleSubscribe} className="space-y-3 relative">
-              <input 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-white/10 border border-white/20 px-4 py-3 text-sm placeholder:text-white/60 focus:ring-1 focus:ring-white outline-none rounded-md text-white" 
-                placeholder="Email address" 
-                type="email" 
-              />
-              <button type="submit" className="w-full bg-white text-primary font-bold py-3 text-[11px] tracking-widest hover:bg-slate-50 transition-all uppercase rounded-md relative overflow-hidden">
-                <span className={`transition-transform duration-300 ${isSubscribed ? 'scale-0 opacity-0 absolute' : 'scale-100 opacity-100'}`}>Subscribe Now</span>
-                <span className={`transition-transform duration-300 flex items-center justify-center gap-1.5 ${isSubscribed ? 'scale-100 opacity-100' : 'scale-0 opacity-0 absolute'}`}><span className="material-symbols-outlined text-[16px]">check_circle</span> Subscribed!</span>
-              </button>
-            </form>
+
+
+        {/* Mobile Navbar Social Media Links */}
+        <div className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
+          <hr className="border-t border-slate-200 opacity-60 my-4" />
+          <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500 mb-3 font-bold">Follow Us</p>
+          <div className="flex flex-row gap-2.5 items-center">
+            {[
+              { name: "X", url: "https://x.com/usimminews", icon: FaXTwitter, bgColor: "#000000" },
+              { name: "LinkedIn", url: "https://www.linkedin.com/company/united-states-immigration-news", icon: FaLinkedinIn, bgColor: "#0077B5" },
+              { name: "Facebook", url: "https://www.facebook.com/profile.php?id=61580097382101", icon: FaFacebook, bgColor: "#1877F2" },
+              { name: "YouTube", url: "https://www.youtube.com/@unitedstatesimmigrationnews", icon: FaYoutube, bgColor: "#FF0000" },
+              { name: "Instagram", url: "https://www.instagram.com/unitedstatesimmigrationnews/", icon: FaInstagram, bgColor: "#E1306C" }
+            ].map((social) => (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.name}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white transition-opacity duration-200 active:opacity-80"
+                style={{ backgroundColor: social.bgColor }}
+              >
+                <social.icon size={18} />
+              </a>
+            ))}
+          </div>
         </div>
       </div>
 

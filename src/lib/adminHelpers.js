@@ -4,27 +4,41 @@ import { supabase } from "./supabase";
  * Gets the current authenticated user inside the admin panel.
  */
 export async function getAdminUser() {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error || !session) return null;
-
-  const { user } = session;
-  if (!user) return null;
-
-  // Fetch role
-  const { data: roleData, error: roleError } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single();
-
-  if (roleError) {
-    console.error("Error fetching user role:", roleError);
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      // If the refresh token is invalid, we should sign out to clear the local storage/cookies
+      if (error.message?.includes("Refresh Token Not Found") || error.status === 400) {
+        await supabase.auth.signOut();
+      }
+      return null;
+    }
+    
+    if (!session) return null;
+  
+    const { user } = session;
+    if (!user) return null;
+  
+    // Fetch role
+    const { data: roleData, error: roleError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+  
+    if (roleError) {
+      console.error("Error fetching user role:", roleError);
+    }
+  
+    return {
+      ...user,
+      role: roleData?.role || 'viewer' // fallback to viewer if no role found
+    };
+  } catch (err) {
+    console.error("Unexpected auth error:", err);
+    return null;
   }
-
-  return {
-    ...user,
-    role: roleData?.role || 'viewer' // fallback to viewer if no role found
-  };
 }
 
 /**

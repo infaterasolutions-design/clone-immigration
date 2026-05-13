@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, use, useEffect } from "react";
 import SidebarWidgets from "@/components/SidebarWidgets";
 import { getLiveEventById } from "@/lib/liveUpdatesData";
+import { timeAgo } from "@/lib/utils";
 
 const LiveUpdateCard = ({ update, eventId }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -45,7 +46,8 @@ const LiveUpdateCard = ({ update, eventId }) => {
       
       <div className="flex flex-col relative">
         <header className="flex items-center gap-2 mb-3">
-          <span className="font-bold text-sm text-slate-900">{update.time}</span>
+          <span className="font-bold text-sm text-slate-900">{timeAgo(update.created_at).relative}</span>
+          <span className="text-xs text-slate-400">({timeAgo(update.created_at).exact})</span>
         </header>
 
         {/* Card with border and shadow */}
@@ -163,6 +165,13 @@ export default function LiveUpdateEventPage({ params }) {
   // Pagination for updates
   const [visibleCount, setVisibleCount] = useState(3);
   const [isLoading, setIsLoading] = useState(false);
+  const [, setTick] = useState(0);
+
+  // Re-render every 60s to keep timeAgo labels fresh
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -195,7 +204,7 @@ export default function LiveUpdateEventPage({ params }) {
     );
   }
 
-  const updates = event.updates || [];
+  const updates = [...(event.updates || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   const visibleUpdates = updates.slice(0, visibleCount);
   const hasMore = visibleCount < updates.length;
 
@@ -206,6 +215,8 @@ export default function LiveUpdateEventPage({ params }) {
       setIsLoading(false);
     }, 800);
   };
+
+  const updateCount = updates.length;
 
   return (
     <div className="pt-4 md:pt-8 pb-24 min-h-screen flex justify-center px-3 md:px-4 lg:px-0">
@@ -360,7 +371,13 @@ export default function LiveUpdateEventPage({ params }) {
             )}
           </header>
 
-          <div className="space-y-4 lg:space-y-6 relative mt-8 lg:mt-12">
+          <hr className="border-slate-200 mb-8" />
+
+          <div className="flex items-center mb-4">
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">{updateCount} Updates</span>
+          </div>
+
+          <div className="space-y-4 lg:space-y-6 relative mt-4">
             {visibleUpdates.length > 0 ? (
               <>
                 <div className="absolute left-[3px] lg:left-[-23px] top-6 bottom-0 w-[1px] bg-slate-200"></div>

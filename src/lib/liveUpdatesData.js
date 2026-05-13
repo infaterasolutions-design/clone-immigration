@@ -29,7 +29,7 @@ export async function getLiveEventById(id) {
   if (error || !data) return null;
   
   // also fetch its updates
-  const { data: updates } = await supabase.from('live_event_updates').select('*').eq('event_id', id);
+  const { data: updates } = await supabase.from('live_event_updates').select('*').eq('event_id', id).order('created_at', { ascending: false });
   const mappedEvent = mapLiveEvent(data);
   mappedEvent.updates = (updates || []).map(mapLiveUpdate);
   

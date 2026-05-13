@@ -443,7 +443,7 @@ export default function Header() {
                       className="flex justify-between items-center px-5 py-2.5 cursor-pointer transition-colors hover:bg-slate-50"
                     >
                       <span className="text-[14px] text-primary font-normal truncate pr-4">{item.title}</span>
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-black/5 text-slate-500 whitespace-nowrap ml-3">{item.category}</span>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-black/5 text-slate-500 whitespace-nowrap ml-3">{item.category_label}</span>
                     </Link>
                   </li>
                 ))}

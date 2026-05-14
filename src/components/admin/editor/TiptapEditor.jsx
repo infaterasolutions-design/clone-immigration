@@ -138,7 +138,7 @@ export default function TiptapEditor({ content, onChange }) {
     },
     editorProps: {
       attributes: {
-        class: "prose prose-slate max-w-none focus:outline-none min-h-[500px]",
+        class: "prose prose-lg prose-slate max-w-none focus:outline-none min-h-[500px]",
       },
       handleKeyDown: (view, event) => {
         // Ctrl+K or Cmd+K to open link modal

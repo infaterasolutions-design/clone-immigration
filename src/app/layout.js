@@ -31,6 +31,9 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 export const metadata = {
   title: "US Immigration News & Updates | Visas, Green Cards, USCIS & ICE News",
   description: "Get the latest USA immigration news, visa updates, green card processing times, USCIS announcements, and ICE policy changes. Trusted daily immigration updates and guides.",
+  alternates: {
+    canonical: 'https://www.unitedstatesimmigrationnews.com',
+  },
   verification: {
     google: 'Ldppw4bsEBlMOJ9twEOQSXGwZG-kvWPWXw8t5IBhPe4',
   },

@@ -38,6 +38,11 @@ export const metadata = {
       'x-default': 'https://www.unitedstatesimmigrationnews.com',
     },
   },
+  robots: {
+    index: true,
+    follow: true,
+    'max-image-preview': 'large',
+  },
   verification: {
     google: 'Ldppw4bsEBlMOJ9twEOQSXGwZG-kvWPWXw8t5IBhPe4',
   },

@@ -7,6 +7,11 @@ export async function generateMetadata({ params }) {
         'x-default': `https://www.unitedstatesimmigrationnews.com/live-updates/${params.id}`,
       },
     },
+    robots: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+    },
   }
 }
 

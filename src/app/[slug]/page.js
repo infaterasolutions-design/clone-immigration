@@ -37,6 +37,11 @@ export async function generateMetadata({ params }) {
         'x-default': `https://www.unitedstatesimmigrationnews.com/${article.slug}`,
       },
     },
+    robots: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+    },
     openGraph: {
       title,
       description,

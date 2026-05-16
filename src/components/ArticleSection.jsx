@@ -4,10 +4,13 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SidebarWidgets from "./SidebarWidgets";
+import RelatedArticles from "./RelatedArticles";
 
 const FALLBACK_IMAGE = "/images/logo.png";
 
-export default function ArticleSection({ article, isFirst = false }) {
+export default function ArticleSection({ article, isFirst = false, customWidgets = { mid: [], end: [] } }) {
+  const midArticles = customWidgets.mid || [];
+  const endArticles = customWidgets.end || [];
   const [isExpanded, setIsExpanded] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
@@ -151,6 +154,20 @@ export default function ArticleSection({ article, isFirst = false }) {
 
     return () => observer.disconnect();
   }, [decodedContent, article.id]);
+
+  // Ensure all links inside article content open in a new tab
+  useEffect(() => {
+    const articleEl = document.getElementById(`article-${article.id}`);
+    if (!articleEl) return;
+    const links = articleEl.querySelectorAll('.prose a[href]');
+    links.forEach((link) => {
+      // Only set for links that don't already have an explicit target
+      if (!link.getAttribute('target')) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+  });
 
   if (!article) return null;
 
@@ -384,15 +401,67 @@ export default function ArticleSection({ article, isFirst = false }) {
             <div className={`prose prose-lg max-w-none font-body pb-8 md:pb-12 lg:pb-12 text-slate-800 mt-4`}>
               
               {decodedContent ? (
-                 <div className={
-                   decodedContent?.trimStart().startsWith('<p') 
-                     ? 'drop-cap-article' 
-                     : ''
-                 } dangerouslySetInnerHTML={{ __html: decodedContent }} />
+                 (() => {
+                   let htmlContent = decodedContent;
+                   let usedMid = /\[WIDGET_MID\]/i.test(htmlContent);
+                   let usedEnd = /\[WIDGET_END\]/i.test(htmlContent);
+
+                   // Auto-inject MID after first paragraph if not manually placed
+                   if (!usedMid && midArticles.length > 0) {
+                     htmlContent = htmlContent.replace(/(<\/p>)/i, '$1|||WIDGET_MID|||');
+                   }
+
+                   let processedHtml = htmlContent
+                     // First try to replace the entire paragraph if it mostly contains the shortcode
+                     .replace(/<p[^>]*>(?:(?!<\/p>)[\s\S])*?\[WIDGET_MID\](?:(?!<\/p>)[\s\S])*?<\/p>/gi, '|||WIDGET_MID|||')
+                     .replace(/<p[^>]*>(?:(?!<\/p>)[\s\S])*?\[WIDGET_END\](?:(?!<\/p>)[\s\S])*?<\/p>/gi, '|||WIDGET_END|||')
+                     // Fallback raw replace just in case
+                     .replace(/\[WIDGET_MID\]/gi, '|||WIDGET_MID|||')
+                     .replace(/\[WIDGET_END\]/gi, '|||WIDGET_END|||');
+
+                   const parts = processedHtml.split('|||');
+
+                   return (
+                     <>
+                       {parts.map((part, index) => {
+                         if (part === 'WIDGET_MID') {
+                           return midArticles.length > 0 ? (
+                             <RelatedArticles key={`mid-${index}`} title="Read More" articles={midArticles} variant="mid" />
+                           ) : null;
+                         }
+                         if (part === 'WIDGET_END') {
+                           return endArticles.length > 0 ? (
+                             <RelatedArticles key={`end-${index}`} title="WHAT TO READ NEXT" articles={endArticles} variant="end" />
+                           ) : null;
+                         }
+                         return part ? (
+                           <div 
+                             key={`html-${index}`} 
+                             className={index === 0 && part.trimStart().startsWith('<p') ? 'drop-cap-article' : ''} 
+                             dangerouslySetInnerHTML={{ __html: part }} 
+                           />
+                         ) : null;
+                       })}
+                       {/* Render End widget at the bottom if not manually placed inside the text */}
+                       {!usedEnd && endArticles.length > 0 && (
+                         <RelatedArticles title="WHAT TO READ NEXT" articles={endArticles} variant="end" />
+                       )}
+                     </>
+                   );
+                 })()
               ) : (
                 <>
                   {article.paragraphs?.map((p, idx) => (
-                    <p key={idx} className={idx === 0 ? "text-xl text-slate-900 leading-relaxed font-medium mb-8 drop-cap-first" : "mb-6"}>{p}</p>
+                    <div key={idx}>
+                      <p className={idx === 0 ? "text-xl text-slate-900 leading-relaxed font-medium mb-8 drop-cap-first" : "mb-6"}>{p}</p>
+                      {idx === 2 && midArticles.length > 0 && (
+                        <RelatedArticles
+                          title={`Read More on ${article.category_label || "Immigration"}`}
+                          articles={midArticles}
+                          variant="mid"
+                        />
+                      )}
+                    </div>
                   ))}
                   
                   {article.quote && (
@@ -435,6 +504,8 @@ export default function ArticleSection({ article, isFirst = false }) {
                  <span key={tag} className="px-4 py-2 bg-surface-container-high rounded-full text-xs font-semibold text-on-surface-variant">#{tag}</span>
               ))}
             </div>
+
+            {/* End of article recommendation widget has been moved to the rich text parsing logic */}
             
             {/* Gradient Overlay & Button */}
             <div className={

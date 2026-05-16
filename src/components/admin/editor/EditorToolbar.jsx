@@ -3,7 +3,7 @@ import { useCallback, useRef, useEffect, useReducer } from "react";
 import { 
   Bold, Italic, Underline, Strikethrough, Heading1, Heading2, Heading3,
   List, ListOrdered, Quote, Code, AlignLeft, AlignCenter, AlignRight, 
-  AlignJustify, Image as ImageIcon, Video, Undo, Redo, Info, Table, Link2
+  AlignJustify, Image as ImageIcon, Video, Undo, Redo, Info, Table, Link2, LayoutTemplate
 } from "lucide-react";
 
 export default function EditorToolbar({ editor, onImageUpload, onEmbedClick }) {
@@ -24,6 +24,18 @@ export default function EditorToolbar({ editor, onImageUpload, onEmbedClick }) {
     const url = prompt("Enter YouTube URL");
     if (url && editor) {
       editor.commands.setYoutubeVideo({ src: url });
+    }
+  }, [editor]);
+
+  const insertMidWidget = useCallback(() => {
+    if (editor) {
+      editor.chain().focus().insertContent('<p>[WIDGET_MID]</p>').run();
+    }
+  }, [editor]);
+
+  const insertEndWidget = useCallback(() => {
+    if (editor) {
+      editor.chain().focus().insertContent('<p>[WIDGET_END]</p>').run();
     }
   }, [editor]);
 
@@ -103,6 +115,11 @@ export default function EditorToolbar({ editor, onImageUpload, onEmbedClick }) {
       <ToolbarButton icon={<Video size={16} />} onClick={addYoutubeVideo} title="Embed YouTube" />
       <ToolbarButton icon={<Table size={16} />} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Insert Table" />
       <ToolbarButton icon={<Link2 size={16} />} onClick={onEmbedClick} title="Embed URL (YouTube, Twitter, Instagram...)" />
+
+      <Divider />
+      
+      <ToolbarButton icon={<LayoutTemplate size={16} className="text-indigo-600" />} onClick={insertMidWidget} title="Insert Mid-Article Widget" />
+      <ToolbarButton icon={<LayoutTemplate size={16} className="text-rose-600" />} onClick={insertEndWidget} title="Insert End-of-Article Widget" />
 
       <Divider />
 

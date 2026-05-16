@@ -113,6 +113,10 @@ export default function TiptapEditor({ content, onChange }) {
         openOnClick: false,
         autolink: true,
         linkOnPaste: true,
+        defaultProtocol: 'https',
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+        },
       }),
       TextAlign.configure({
         types: ["heading", "paragraph"],

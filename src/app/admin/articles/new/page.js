@@ -35,6 +35,7 @@ export default function NewArticle() {
     is_indexed: true,
     published_at_local: "",
     location_id: null,
+    custom_widgets: { mid: [], end: [] },
   });
 
   useEffect(() => {

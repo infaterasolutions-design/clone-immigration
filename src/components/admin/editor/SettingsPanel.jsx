@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import { uploadMediaToSupabase } from "../../../lib/adminHelpers";
 import LocationSelector from "./LocationSelector";
+import CustomWidgetBuilder from "./CustomWidgetBuilder";
 
 export default function SettingsPanel({ form, handleChange, categories }) {
   const [isUploading, setIsUploading] = useState(false);
@@ -159,6 +160,12 @@ export default function SettingsPanel({ form, handleChange, categories }) {
           </div>
         </div>
       </div>
+
+      {/* Custom Widgets */}
+      <CustomWidgetBuilder 
+        widgets={form.custom_widgets || { mid: [], end: [] }} 
+        onChange={(widgets) => handleChange({ target: { name: "custom_widgets", value: widgets } })} 
+      />
 
       {/* Status Toggle */}
       <div>

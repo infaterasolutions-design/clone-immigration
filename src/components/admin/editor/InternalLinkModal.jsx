@@ -19,12 +19,42 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
     }
   }, [isOpen, initialUrl]);
 
+  // Extract slug from own-site URLs
+  const extractSlugFromOwnUrl = (url) => {
+    const patterns = [
+      /(?:https?:\/\/)?(?:www\.)?unitedstatesimmigrationnews\.com\/([^?#]+)/i,
+      /(?:https?:\/\/)?localhost:\d+\/([^?#]+)/i,
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) return match[1].replace(/^\/+/, '');
+    }
+    return null;
+  };
+
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if (query && query.length >= 2 && !query.startsWith("http")) {
+      if (!query || query.length < 2) { setResults([]); return; }
+
+      // If the user pasted their own site's URL, extract the slug and search by it
+      const slug = extractSlugFromOwnUrl(query);
+      // Clean query: strip leading slash for slug-style searches
+      const cleanQuery = query.replace(/^\/+/, '');
+      
+      if (slug) {
         setIsLoading(true);
         try {
-          const articles = await searchInternalArticles(query);
+          const articles = await searchInternalArticles(slug);
+          setResults(articles);
+        } catch (error) {
+          console.error("Failed to search articles:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else if (!query.startsWith("http")) {
+        setIsLoading(true);
+        try {
+          const articles = await searchInternalArticles(cleanQuery);
           setResults(articles);
         } catch (error) {
           console.error("Failed to search articles:", error);
@@ -64,7 +94,31 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
 
   if (!isOpen) return null;
 
-  const isExternalLikely = query.startsWith("http") || query.includes(".com") || query.includes(".org");
+  const isOwnSiteUrl = query.includes('unitedstatesimmigrationnews.com') || query.includes('localhost:');
+  const isExternalLikely = (query.startsWith("http") || query.includes(".com") || query.includes(".org")) && !isOwnSiteUrl;
+
+  const handleManualUrlSubmit = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    
+    let url = query.trim();
+    
+    // Automatically strip production/dev domains so it saves as a clean internal relative URL
+    if (url.includes('unitedstatesimmigrationnews.com')) {
+      const parts = url.split('unitedstatesimmigrationnews.com');
+      url = parts[1] || '/';
+      if (!url.startsWith('/')) url = '/' + url;
+    } else if (url.includes('localhost:3000')) {
+      const parts = url.split('localhost:3000');
+      url = parts[1] || '/';
+      if (!url.startsWith('/')) url = '/' + url;
+    } else if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("/")) {
+      url = "https://" + url;
+    }
+
+    onInsert({ url, openInNewTab });
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -82,7 +136,7 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmitExternal} className="p-4 border-b border-slate-100">
+        <form onSubmit={handleManualUrlSubmit} className="p-4 border-b border-slate-100">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
@@ -124,15 +178,21 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
             </div>
           )}
 
-          {!isLoading && query && results.length === 0 && !isExternalLikely && (
+          {!isLoading && query && results.length === 0 && !isExternalLikely && !isOwnSiteUrl && (
             <div className="p-4 text-center text-sm text-slate-500">
               No articles found. Try another search or paste a URL.
             </div>
           )}
 
+          {!isLoading && isOwnSiteUrl && results.length === 0 && (
+            <div className="p-4 text-center text-sm text-slate-500">
+              No matching article found for this URL.
+            </div>
+          )}
+
           {!isLoading && isExternalLikely && (
             <button
-              onClick={handleSubmitExternal}
+              onClick={handleManualUrlSubmit}
               className="w-full flex items-center gap-3 p-3 text-left rounded-lg hover:bg-indigo-50 transition-colors group"
             >
               <div className="w-10 h-10 rounded bg-indigo-100 flex items-center justify-center text-indigo-600 flex-shrink-0">

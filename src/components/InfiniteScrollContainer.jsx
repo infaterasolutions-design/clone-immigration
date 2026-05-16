@@ -8,7 +8,7 @@ import { fetchNextArticleAction } from "@/app/actions/article";
 
 const MAX_ARTICLES = 4;
 
-export default function InfiniteScrollContainer({ initialArticle, sidebarData, nextArticle }) {
+export default function InfiniteScrollContainer({ initialArticle, sidebarData, nextArticle, customWidgets = { mid: [], end: [] } }) {
   // Initialize with initialArticle, and nextArticle if it exists
   const initialArticles = nextArticle ? [initialArticle, nextArticle] : [initialArticle];
   
@@ -113,7 +113,7 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
       <div className="pt-4 md:pt-8 pb-0 px-3 md:px-4 lg:px-24 max-w-[1298px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 relative">
         <div className="lg:col-span-8 flex flex-col gap-2 md:gap-3">
           {articles.map((article, index) => (
-            <ArticleSection key={`article-${article.id}`} article={article} isFirst={index === 0} />
+            <ArticleSection key={`article-${article.id}`} article={article} isFirst={index === 0} customWidgets={index === 0 ? customWidgets : { mid: [], end: [] }} />
           ))}
           
           {/* Loading Indicator / Sentinel */}

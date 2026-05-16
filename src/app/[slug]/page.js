@@ -97,9 +97,74 @@ export default async function ArticlePage({ params }) {
 
   // Pre-fetch the second article on the server so the infinite scroll never hangs on first load
   const nextArticle = await fetchNextArticleAction(article.slug, article.published_at);
+  // Resolve metadata for custom widgets
+  const rawWidgets = article.custom_widgets || { mid: [], end: [] };
+  const allLinks = [...(rawWidgets.mid || []), ...(rawWidgets.end || [])];
   
+  // Extract slugs from internal links (e.g. "/slug-name" -> "slug-name")
+  const extractSlug = (url) => {
+    if (!url) return null;
+    // Check if it's a relative URL or absolute URL belonging to the site
+    if (url.startsWith('/') && !url.startsWith('//')) {
+      return url.split('?')[0].replace(/^\/|\/$/g, '');
+    }
+    // If they pasted a full localhost or production URL, try to extract slug
+    try {
+      const parsed = new URL(url);
+      if (
+        parsed.hostname.includes('localhost') || 
+        parsed.hostname.includes('stitch') || 
+        parsed.hostname.includes('unitedstatesimmigrationnews')
+      ) {
+        return parsed.pathname.replace(/^\/|\/$/g, '');
+      }
+    } catch (e) {
+      // not a valid URL, ignore
+    }
+    return null;
+  };
+
+  const internalSlugs = allLinks
+    .map(link => extractSlug(link.url))
+    .filter(Boolean); // Remove nulls
+
+  let resolvedMetadata = {};
+  if (internalSlugs.length > 0) {
+    const { data } = await supabase
+      .from('articles')
+      .select('slug, title, read_time, main_image, category_label, published_at')
+      .in('slug', internalSlugs)
+      .eq('status', 'published');
+      
+    if (data) {
+      data.forEach(item => {
+        resolvedMetadata[item.slug] = item;
+      });
+    }
+  }
+
+  const enrichWidget = (links) => {
+    return links.map(link => {
+      const slug = extractSlug(link.url);
+      const meta = slug ? resolvedMetadata[slug] : null;
+      
+      return {
+        ...link, // has url and title
+        main_image: meta ? meta.main_image : null,
+        read_time: meta ? meta.read_time : null,
+        category_label: meta ? meta.category_label : null,
+        original_title: meta ? meta.title : null,
+      };
+    });
+  };
+
+  const customWidgets = {
+    mid: enrichWidget(rawWidgets.mid || []),
+    end: enrichWidget(rawWidgets.end || [])
+  };
+
   return (
-    <InfiniteScrollContainer initialArticle={article} sidebarData={sidebarData} nextArticle={nextArticle} />
+    <InfiniteScrollContainer initialArticle={article} sidebarData={sidebarData} nextArticle={nextArticle} customWidgets={customWidgets} />
   );
 }
 

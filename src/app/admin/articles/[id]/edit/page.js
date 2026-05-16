@@ -36,6 +36,7 @@ export default function EditArticle() {
     is_recommended_popup: false,
     is_indexed: true,
     location_id: null,
+    custom_widgets: { mid: [], end: [] },
   });
 
   useEffect(() => {

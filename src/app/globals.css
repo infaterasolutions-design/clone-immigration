@@ -588,3 +588,14 @@ img {
   pointer-events: none;
   height: 0;
 }
+
+
+@media (max-width: 640px) {
+  .related-articles-img {
+    width: 64px !important;
+    height: 48px !important;
+  }
+  .related-articles-title {
+    font-size: 14px !important;
+  }
+}

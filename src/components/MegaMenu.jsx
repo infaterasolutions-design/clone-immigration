@@ -68,15 +68,6 @@ export default function MegaMenu({ categories, menuOpen, onClose }) {
               {/* Dropdown panel */}
               {cat.subcategories?.length > 0 && (
                 <div className="nav-dropdown absolute top-full left-1/2 -translate-x-1/2 min-w-[240px] w-max bg-white border border-slate-200 shadow-xl rounded-lg py-2 z-[60]">
-                  {/* Parent heading */}
-                  <div className="px-5 pt-2 pb-2 mb-1 border-b border-slate-100">
-                    <Link
-                      href={`/${cat.slug}/`}
-                      className="text-[11px] font-bold tracking-widest uppercase text-primary hover:opacity-80 transition-opacity"
-                    >
-                      All {cat.name}
-                    </Link>
-                  </div>
                   {cat.subcategories.map((sub) => (
                     <Link
                       key={sub.slug}

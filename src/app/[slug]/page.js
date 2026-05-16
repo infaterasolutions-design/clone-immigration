@@ -1,8 +1,10 @@
 import InfiniteScrollContainer from "@/components/InfiniteScrollContainer";
+import CategoryIndexPage from "@/components/CategoryIndexPage";
 import { fetchArticleInitialDataBySlug, fetchNextArticleAction } from "@/app/actions/article";
 import { getSidebarData } from "@/app/actions/sidebar";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getCategoryBySlug, isParentCategory } from "@/lib/categoryConfig";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.unitedstatesimmigrationnews.com").replace(/\/+$/, "");
 
@@ -11,6 +13,21 @@ export const revalidate = 60;
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
+
+  // ─── Check if slug is a parent category ───
+  const category = await getCategoryBySlug(slug);
+  if (category) {
+    return {
+      title: category.seo_title || `${category.name} - United States Immigration News`,
+      description: category.seo_description || category.description || `Latest ${category.name} news and updates.`,
+      alternates: {
+        canonical: `https://www.unitedstatesimmigrationnews.com/${category.slug}/`,
+      },
+      robots: { index: true, follow: true, 'max-image-preview': 'large' },
+    };
+  }
+
+  // ─── Otherwise, treat as article ───
   const { data: article } = await supabase
     .from("articles")
     .select("title, sub_title, main_image, author_name, category_label, slug")
@@ -73,10 +90,32 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ArticlePage({ params }) {
+export default async function SlugPage({ params }) {
   const { slug } = await params;
-  
-  // Fetch article and sidebar data in parallel on the server
+
+  // ─── Smart Detection: Is this a category page? ───
+  const category = await getCategoryBySlug(slug);
+  if (category) {
+    // Fetch articles for this parent category
+    const { data: articles } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("category_slug", slug)
+      .eq("status", "published")
+      .lte("published_at", new Date().toISOString())
+      .order("published_at", { ascending: false })
+      .limit(50);
+
+    return (
+      <CategoryIndexPage
+        category={category}
+        subcategories={category.subcategories || []}
+        articles={articles || []}
+      />
+    );
+  }
+
+  // ─── Otherwise, render as article page ───
   const [article, sidebarData] = await Promise.all([
     fetchArticleInitialDataBySlug(slug),
     getSidebarData(),
@@ -145,8 +184,8 @@ export default async function ArticlePage({ params }) {
 
   const enrichWidget = (links) => {
     return links.map(link => {
-      const slug = extractSlug(link.url);
-      const meta = slug ? resolvedMetadata[slug] : null;
+      const linkSlug = extractSlug(link.url);
+      const meta = linkSlug ? resolvedMetadata[linkSlug] : null;
       
       return {
         ...link, // has url and title
@@ -167,4 +206,3 @@ export default async function ArticlePage({ params }) {
     <InfiniteScrollContainer initialArticle={article} sidebarData={sidebarData} nextArticle={nextArticle} customWidgets={customWidgets} />
   );
 }
-

@@ -40,6 +40,35 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // ─── Old category → New parent routes (301 permanent) ───
+      { source: '/category/visa-news', destination: '/visa/', permanent: true },
+      { source: '/category/visa-news/h1b-visa', destination: '/visa/h-1b/', permanent: true },
+      { source: '/category/visa-news/f1-opt', destination: '/students/opt/', permanent: true },
+      { source: '/category/visa-news/green-card', destination: '/green-card/', permanent: true },
+      { source: '/category/visa-news/uscis-updates', destination: '/uscis/policy-updates/', permanent: true },
+      { source: '/category/visa-news/b1-b2', destination: '/visa/b1-b2/', permanent: true },
+      { source: '/category/visa-news/consulate-alerts', destination: '/visa/visa-stamping/', permanent: true },
+      { source: '/category/visa-guides', destination: '/guides/', permanent: true },
+      { source: '/category/visa-guides/how-to', destination: '/guides/how-to/', permanent: true },
+      { source: '/category/visa-guides/application-steps', destination: '/guides/application-process/', permanent: true },
+      { source: '/category/visa-guides/faqs', destination: '/guides/faqs/', permanent: true },
+      { source: '/category/processing-times', destination: '/uscis/processing-times/', permanent: true },
+      { source: '/category/processing-times/:sub', destination: '/uscis/processing-times/', permanent: true },
+      { source: '/category/visa-bulletin', destination: '/green-card/visa-bulletin/', permanent: true },
+      { source: '/category/visa-bulletin/:sub', destination: '/green-card/visa-bulletin/', permanent: true },
+      { source: '/category/fee-calculator', destination: '/guides/', permanent: true },
+      { source: '/category/fee-calculator/:sub', destination: '/guides/', permanent: true },
+      { source: '/category/tools', destination: '/guides/', permanent: true },
+      { source: '/category/tools/:sub', destination: '/guides/', permanent: true },
+      { source: '/category/about', destination: '/', permanent: true },
+      { source: '/category/about/:sub', destination: '/', permanent: true },
+      // Catch-all for any remaining /category/ routes
+      { source: '/category/:slug', destination: '/:slug/', permanent: true },
+      { source: '/category/:slug/:sub', destination: '/:slug/:sub/', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

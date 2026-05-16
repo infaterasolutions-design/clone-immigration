@@ -6,6 +6,8 @@ import Image from "next/image";
 import SidebarWidgets from "./SidebarWidgets";
 import RelatedArticles from "./RelatedArticles";
 
+import Breadcrumb from "./Breadcrumb";
+
 const FALLBACK_IMAGE = "/images/logo.png";
 
 export default function ArticleSection({ article, isFirst = false, customWidgets = { mid: [], end: [] } }) {
@@ -217,22 +219,26 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
         {/* Article Section */}
         <div className="lg:col-span-7">
           {/* Breadcrumbs / Category > Subcategory */}
-          <div className="flex items-center gap-3 mb-5 md:mb-6 flex-wrap">
-            <div className="bg-[#eef2ff] text-[#1e3a8a] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
-              <Link href={`/category/${article.categorySlug}`} className="hover:opacity-80 transition-opacity">
-                {article.categorySlug === "visa-news" ? "VISA NEWS" : 
-                 article.categorySlug === "visa-guides" ? "VISA GUIDES" : 
-                 article.categorySlug === "about" ? "ABOUT" : article.categorySlug.toUpperCase().replace('-', ' ')}
-              </Link>
-              {article.subCategorySlug && (
-                <>
-                  <span className="text-[#1e3a8a]/40 text-xs leading-none relative -top-[1px]">|</span>
-                  <Link href={`/category/${article.categorySlug}/${article.subCategorySlug}`} className="hover:opacity-80 transition-opacity">
-                    {article.subCategorySlug.toUpperCase().replace(/-/g, ' ')}
-                  </Link>
-                </>
-              )}
-            </div>
+          <Breadcrumb
+            category={article.categorySlug ? { name: article.categoryLabel || article.categorySlug, slug: article.categorySlug } : null}
+            subcategory={article.subCategorySlug ? { name: article.subCategorySlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), slug: article.subCategorySlug } : null}
+          />
+          <div className="flex items-center gap-3 mb-5 md:mb-3 flex-wrap">
+            {article.categorySlug && (
+              <div className="bg-[#eef2ff] text-[#1e3a8a] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
+                <Link href={`/${article.categorySlug}/`} className="hover:opacity-80 transition-opacity">
+                  {article.categoryLabel || article.categorySlug.toUpperCase().replace(/-/g, ' ')}
+                </Link>
+                {article.subCategorySlug && (
+                  <>
+                    <span className="text-[#1e3a8a]/40 text-xs leading-none relative -top-[1px]">|</span>
+                    <Link href={`/${article.categorySlug}/${article.subCategorySlug}/`} className="hover:opacity-80 transition-opacity">
+                      {article.subCategorySlug.toUpperCase().replace(/-/g, ' ')}
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
             <span className="text-slate-300 mx-1 text-[8px]">●</span>
             <span className="text-slate-500 text-sm font-medium">{article.readTime}</span>
           </div>

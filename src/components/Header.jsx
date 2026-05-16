@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getCategories } from "@/lib/categoryConfig";
 import { subscribeEmail } from "@/app/actions/subscribe";
-import { FaXTwitter, FaLinkedinIn, FaFacebook, FaYoutube, FaInstagram } from 'react-icons/fa6';
+import MegaMenu from "./MegaMenu";
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
@@ -33,7 +33,6 @@ export default function Header() {
     setSearchQuery('');
     setSuggestions([]);
   };
-  const [expandedSlugs, setExpandedSlugs] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [voiceSearchSupported, setVoiceSearchSupported] = useState(false);
@@ -152,14 +151,6 @@ export default function Header() {
     setSearchOpen(false);
     setSearchQuery('');
     setSuggestions([]);
-    setExpandedSlugs({});
-  }, []);
-
-  const handleToggle = useCallback((slug) => {
-    setExpandedSlugs((prev) => ({
-      ...prev,
-      [slug]: !prev[slug],
-    }));
   }, []);
 
   const handleSearchSubmit = (e) => {
@@ -342,35 +333,8 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Center: Desktop Navigation Links */}
-          <nav className="hidden lg:flex flex-1 justify-center items-center gap-4 h-full whitespace-nowrap px-4">
-            <div className="nav-item group relative flex items-center py-2">
-              <Link href="/" className="text-[13px] font-semibold text-slate-600 hover:text-primary transition-colors">Home</Link>
-            </div>
-            {CATEGORIES.map((cat) => (
-              <div key={cat.slug} className="nav-item group relative flex items-center py-2">
-                <Link href={`/category/${cat.slug}`} className="text-[13px] font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-0.5">
-                  {cat.name}
-                  {cat.subcategories?.length > 0 && (
-                    <span className="material-symbols-outlined text-[14px] text-slate-400">expand_more</span>
-                  )}
-                </Link>
-                {cat.subcategories?.length > 0 && (
-                  <div className="nav-dropdown absolute top-full left-0 min-w-[220px] w-max bg-white border border-slate-200 shadow-xl py-2 z-[60]">
-                    {cat.subcategories.map((sub) => (
-                      <Link
-                        key={sub.slug}
-                        href={`/category/${cat.slug}/${sub.slug}`}
-                        className="block px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors"
-                      >
-                        {sub.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </nav>
+          {/* Center: Desktop + Mobile Navigation */}
+          <MegaMenu categories={CATEGORIES} menuOpen={menuOpen} onClose={closeMenu} />
 
           {/* Right: Search + Subscribe */}
           <div className="flex items-center gap-3 flex-shrink-0">
@@ -550,109 +514,7 @@ export default function Header() {
         onClick={closeAll}
       />
 
-      {/* ===== MOBILE MENU OVERLAY ===== */}
-      {menuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[60px] z-[998] bg-black/30 backdrop-blur-sm" onClick={closeAll} />
-      )}
-
-      {/* ===== MOBILE SLIDE-IN MENU ===== */}
-      <div
-        className={`lg:hidden fixed top-[60px] left-0 right-0 bottom-0 z-[999] bg-white transform transition-transform duration-300 ease-in-out ${
-          menuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-        style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" }}
-      >
-        {/* Home */}
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-5 py-4 text-[15px] font-bold text-slate-900 border-b border-slate-100 active:bg-slate-50"
-          onClick={closeMenu}
-        >
-          <span className="material-symbols-outlined text-primary text-[20px]">home</span>
-          Home
-        </Link>
-
-        {/* Live Updates */}
-        <Link
-          href="/live-updates"
-          className="flex items-center gap-3 px-5 py-4 text-[15px] font-bold text-slate-900 border-b border-slate-100 active:bg-slate-50 relative group"
-          onClick={closeMenu}
-        >
-          <span className="absolute left-6 w-2 h-2 bg-red-500 rounded-full animate-pulse-red"></span>
-          <span className="material-symbols-outlined text-transparent text-[20px]"></span> {/* spacing */}
-          <span className="ml-1">Live Updates</span>
-        </Link>
-
-        {/* Categories */}
-        {CATEGORIES.map((cat) => (
-          <div key={cat.slug} className="border-b border-slate-100">
-            <div className="flex items-center justify-between px-5 py-4 active:bg-slate-50">
-              <Link
-                href={`/category/${cat.slug}`}
-                className="text-[15px] font-bold text-slate-900 flex-grow py-1"
-                onClick={closeMenu}
-              >
-                {cat.name}
-              </Link>
-              {cat.subcategories?.length > 0 && (
-                <button
-                  className="p-2 -mr-2 text-slate-500 transition-transform duration-300"
-                  style={{ transform: expandedSlugs[cat.slug] ? "rotate(180deg)" : "rotate(0deg)" }}
-                  onClick={() => handleToggle(cat.slug)}
-                  aria-label="Toggle subcategories"
-                >
-                  <span className="material-symbols-outlined text-[20px]">expand_more</span>
-                </button>
-              )}
-            </div>
-            
-            {/* Subcategories Accordion */}
-            {cat.subcategories?.length > 0 && expandedSlugs[cat.slug] && (
-              <div className="bg-slate-50 px-5 py-2 border-t border-slate-100/50 shadow-inner">
-                {cat.subcategories.map((sub) => (
-                  <Link
-                    key={sub.slug}
-                    href={`/category/${cat.slug}/${sub.slug}`}
-                    className="block py-3 pl-4 text-[14px] font-medium text-slate-600 active:text-primary"
-                    onClick={closeMenu}
-                  >
-                    {sub.name}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-
-
-
-        {/* Mobile Navbar Social Media Links */}
-        <div className="px-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
-          <hr className="border-t border-slate-200 opacity-60 my-4" />
-          <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500 mb-3 font-bold">Follow Us</p>
-          <div className="flex flex-row gap-2.5 items-center">
-            {[
-              { name: "X", url: "https://x.com/usimminews", icon: FaXTwitter, bgColor: "#000000" },
-              { name: "LinkedIn", url: "https://www.linkedin.com/company/united-states-immigration-news", icon: FaLinkedinIn, bgColor: "#0077B5" },
-              { name: "Facebook", url: "https://www.facebook.com/profile.php?id=61580097382101", icon: FaFacebook, bgColor: "#1877F2" },
-              { name: "YouTube", url: "https://www.youtube.com/@unitedstatesimmigrationnews", icon: FaYoutube, bgColor: "#FF0000" },
-              { name: "Instagram", url: "https://www.instagram.com/unitedstatesimmigrationnews/", icon: FaInstagram, bgColor: "#E1306C" }
-            ].map((social) => (
-              <a
-                key={social.name}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.name}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-white transition-opacity duration-200 active:opacity-80"
-                style={{ backgroundColor: social.bgColor }}
-              >
-                <social.icon size={18} />
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Mobile overlay and slide-in menu are now handled by <MegaMenu /> */}
 
       {/* ===== GLOBAL SUBSCRIBE MODAL ===== */}
       {showSubscribeModal && (

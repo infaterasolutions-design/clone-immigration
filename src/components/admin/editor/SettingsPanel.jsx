@@ -4,7 +4,7 @@ import { uploadMediaToSupabase } from "../../../lib/adminHelpers";
 import LocationSelector from "./LocationSelector";
 import CustomWidgetBuilder from "./CustomWidgetBuilder";
 
-export default function SettingsPanel({ form, handleChange, categories }) {
+export default function SettingsPanel({ form, handleChange, categories, clusters = [] }) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -69,23 +69,22 @@ export default function SettingsPanel({ form, handleChange, categories }) {
         )}
       </div>
 
-      {/* Organization */}
+      {/* Organization & Routing */}
       <div>
-        <h3 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Organization</h3>
+        <h3 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Organization & Routing</h3>
         
-        <div className="space-y-4">
+        <div className="space-y-4 p-4 border border-slate-200 rounded-md bg-slate-50/50">
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Category</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">1. Main Category</label>
             <select 
               value={form.category_slug || ""} 
               onChange={(e) => {
                 const selectedCat = categories.find(c => c.slug === e.target.value);
                 handleChange({ target: { name: "category_slug", value: selectedCat ? selectedCat.slug : "" } });
                 handleChange({ target: { name: "category_label", value: selectedCat ? selectedCat.name : "" } });
-                // Reset subcategory when category changes
                 handleChange({ target: { name: "sub_category_slug", value: "" } });
               }}
-              className="w-full bg-slate-50 border border-slate-200 rounded p-2 text-sm text-slate-800 outline-none focus:border-indigo-500"
+              className="w-full bg-white border border-slate-200 rounded p-2 text-sm text-slate-800 outline-none focus:border-indigo-500 shadow-sm"
             >
               <option value="">Select a category...</option>
               {categories.map((cat, idx) => (
@@ -94,28 +93,49 @@ export default function SettingsPanel({ form, handleChange, categories }) {
             </select>
           </div>
 
-          {/* Subcategory Select */
-          (() => {
-            const selectedCatObj = categories.find(c => c.slug === form.category_slug);
-            if (!selectedCatObj || !selectedCatObj.subcategories || selectedCatObj.subcategories.length === 0) return null;
-
-            return (
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">Subcategory</label>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">2. Subcategory</label>
+            {(() => {
+              const selectedCatObj = categories.find(c => c.slug === form.category_slug);
+              const hasSubcategories = selectedCatObj && selectedCatObj.subcategories && selectedCatObj.subcategories.length > 0;
+              
+              return (
                 <select 
                   name="sub_category_slug"
                   value={form.sub_category_slug || ""} 
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded p-2 text-sm text-slate-800 outline-none focus:border-indigo-500"
+                  disabled={!hasSubcategories}
+                  className="w-full bg-white border border-slate-200 rounded p-2 text-sm text-slate-800 outline-none focus:border-indigo-500 shadow-sm disabled:bg-slate-100 disabled:text-slate-400"
                 >
-                  <option value="">No subcategory...</option>
-                  {selectedCatObj.subcategories.map((sub, idx) => (
+                  <option value="">{hasSubcategories ? "Select subcategory..." : "No subcategories available"}</option>
+                  {hasSubcategories && selectedCatObj.subcategories.map((sub, idx) => (
                     <option key={idx} value={sub.slug}>{sub.name || sub.label}</option>
                   ))}
                 </select>
-              </div>
-            );
-          })()}
+              );
+            })()}
+          </div>
+
+          <div className="pt-4 border-t border-slate-200 mt-2">
+            <label className="block text-xs font-bold text-indigo-600 mb-1">3. Topic Cluster (Special Routing)</label>
+            <p className="text-[10px] text-slate-500 mb-2 leading-tight">
+              Overrides standard routing. Nests this article under a Live Event URL.
+            </p>
+            <select 
+              name="cluster_slug"
+              value={form.cluster_slug || ""} 
+              onChange={handleChange}
+              className="w-full bg-indigo-50/30 border border-indigo-200 rounded p-2 text-sm text-indigo-900 outline-none focus:border-indigo-500 shadow-sm"
+            >
+              <option value="">None (Publish normally at root)</option>
+              {clusters.map((cluster, idx) => (
+                <option key={idx} value={cluster.slug}>{cluster.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="space-y-4 mt-6">
 
           <div>
             <label className="block text-xs text-slate-500 mb-1">Author</label>

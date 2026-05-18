@@ -25,7 +25,9 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
     // Use env-based production URL if available, otherwise use current page URL
     const siteBase = process.env.NEXT_PUBLIC_SITE_URL;
     if (siteBase) {
-      const path = article.slug ? `/${article.slug}` : `/article/${article.id}`;
+      const path = article.cluster_slug
+        ? `/${article.cluster_slug}/${article.slug}`
+        : (article.slug ? `/${article.slug}` : `/article/${article.id}`);
       return `${siteBase.replace(/\/$/, '')}${path}`;
     }
     // Fallback: use the actual browser URL the user is on right now
@@ -174,7 +176,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
   if (!article) return null;
 
   return (
-    <div id={`article-${article.id}`} className="article-wrapper" data-article-id={article.id} data-article-slug={article.slug}>
+    <div id={`article-${article.id}`} className="article-wrapper" data-article-id={article.id} data-article-slug={article.cluster_slug ? `${article.cluster_slug}/${article.slug}` : article.slug}>
       <article className={`grid grid-cols-1 lg:grid-cols-8 gap-8 md:gap-12 relative ${!isFirst ? 'mt-4 md:mt-6 pt-4 border-t-2 border-slate-100' : ''}`}>
         {/* Floating Social Interaction Bar (Desktop) */}
         <aside className="hidden lg:flex flex-col items-end pt-[190px] pr-2 xl:pr-6 lg:col-span-1">
@@ -218,13 +220,27 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
 
         {/* Article Section */}
         <div className="lg:col-span-7">
-          {/* Breadcrumbs / Category > Subcategory */}
+          {/* Breadcrumbs / Category > Subcategory OR Cluster */}
           <Breadcrumb
-            category={article.categorySlug ? { name: article.categoryLabel || article.categorySlug, slug: article.categorySlug } : null}
-            subcategory={article.subCategorySlug ? { name: article.subCategorySlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), slug: article.subCategorySlug } : null}
+            category={
+              article.cluster_slug
+                ? { name: article.cluster_slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), slug: article.cluster_slug }
+                : (article.categorySlug ? { name: article.categoryLabel || article.categorySlug, slug: article.categorySlug } : null)
+            }
+            subcategory={
+              !article.cluster_slug && article.subCategorySlug
+                ? { name: article.subCategorySlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), slug: article.subCategorySlug }
+                : null
+            }
           />
           <div className="flex items-center gap-3 mb-5 md:mb-3 flex-wrap">
-            {article.categorySlug && (
+            {article.cluster_slug ? (
+              <div className="bg-[#eef2ff] text-[#1e3a8a] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
+                <Link href={`/${article.cluster_slug}/`} className="hover:opacity-80 transition-opacity">
+                  {article.cluster_slug.toUpperCase().replace(/-/g, ' ')}
+                </Link>
+              </div>
+            ) : article.categorySlug ? (
               <div className="bg-[#eef2ff] text-[#1e3a8a] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
                 <Link href={`/${article.categorySlug}/`} className="hover:opacity-80 transition-opacity">
                   {article.categoryLabel || article.categorySlug.toUpperCase().replace(/-/g, ' ')}
@@ -238,7 +254,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                   </>
                 )}
               </div>
-            )}
+            ) : null}
             <span className="text-slate-300 mx-1 text-[8px]">●</span>
             <span className="text-slate-500 text-sm font-medium">{article.readTime}</span>
           </div>

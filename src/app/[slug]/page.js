@@ -181,6 +181,11 @@ export default async function SlugPage({ params }) {
     return notFound();
   }
 
+  if (article.cluster_slug) {
+    const { redirect } = await import('next/navigation');
+    redirect(`/${article.cluster_slug}/${article.slug}`);
+  }
+
   // Pre-fetch the second article on the server so the infinite scroll never hangs on first load
   const nextArticle = await fetchNextArticleAction(article.slug, article.published_at);
   // Resolve metadata for custom widgets

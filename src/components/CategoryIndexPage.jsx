@@ -84,7 +84,7 @@ export default function CategoryIndexPage({ category, subcategories, articles, a
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               {articles.map((article) => (
                 <Link
-                  href={`/${article.slug}`}
+                  href={article.cluster_slug ? `/${article.cluster_slug}/${article.slug}` : `/${article.slug}`}
                   key={article.id}
                   className="group flex flex-col space-y-3 md:space-y-4 cursor-pointer block border border-transparent hover:border-slate-100 pb-4 rounded-xl transition-all hover:shadow-lg bg-white"
                 >

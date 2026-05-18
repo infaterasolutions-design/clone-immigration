@@ -13,6 +13,7 @@ export default function NewArticle() {
   const [loading, setLoading] = useState(false);
   const user = typeof window !== "undefined" ? window.__adminUser : null;
   const [categories, setCategories] = useState([]);
+  const [clusters, setClusters] = useState([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -35,15 +36,36 @@ export default function NewArticle() {
     is_indexed: true,
     published_at_local: "",
     location_id: null,
+    cluster_slug: "",
     custom_widgets: { mid: [], end: [] },
   });
 
   useEffect(() => {
-    async function fetchCats() {
-      const { data } = await supabase.from("categories").select("*");
-      if (data) setCategories(data);
+    async function fetchData() {
+      const [{ data: catData }, { data: eventsData }] = await Promise.all([
+        supabase.from("categories").select("*"),
+        supabase.from("live_events").select("topic_url, title")
+      ]);
+      if (catData) {
+        const rows = catData || [];
+        const parents = rows.filter((r) => !r.parent_slug);
+        const children = rows.filter((r) => r.parent_slug);
+        const tree = parents.map((p) => ({
+          ...p,
+          subcategories: children
+            .filter((c) => c.parent_slug === p.slug)
+            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)),
+        })).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        setCategories(tree);
+      }
+      
+      // Extract unique clusters from live events
+      if (eventsData) {
+        const uniqueClusters = Array.from(new Map(eventsData.filter(e => e.topic_url).map(e => [e.topic_url, { slug: e.topic_url, name: e.title }])).values());
+        setClusters(uniqueClusters);
+      }
     }
-    fetchCats();
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
@@ -85,7 +107,8 @@ export default function NewArticle() {
       author_image: form.author_image || "",
       tags: form.tags || [],
       category_slug: form.category_slug || "",
-      sub_category_slug: form.sub_category_slug || ""
+      sub_category_slug: form.sub_category_slug || "",
+      cluster_slug: form.cluster_slug || null
     };
     
     // Final robust sanitization of the slug to prevent trailing hyphens or slashes
@@ -198,7 +221,7 @@ export default function NewArticle() {
 
           {/* Settings Sidebar (Right) */}
           <div className="lg:col-span-4 overflow-y-auto pr-2 custom-scrollbar space-y-6">
-            <SettingsPanel form={form} handleChange={handleChange} categories={categories} />
+            <SettingsPanel form={form} handleChange={handleChange} categories={categories} clusters={clusters} />
             <SEOPanel form={form} handleChange={handleChange} />
           </div>
 

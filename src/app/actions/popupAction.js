@@ -7,7 +7,7 @@ export async function getRecommendedPopupData() {
     // Fetch the single article marked as recommended
     const { data, error } = await supabase
       .from('articles')
-      .select('id, title, slug, main_image')
+      .select('id, title, slug, cluster_slug, main_image')
       .eq('is_recommended_popup', true)
       .order('published_at', { ascending: false })
       .limit(1)

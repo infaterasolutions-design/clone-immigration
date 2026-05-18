@@ -92,6 +92,7 @@ function mapArticle(a) {
     ...a,
     categorySlug: a.category_slug,
     subCategorySlug: a.sub_category_slug,
+    cluster_slug: a.cluster_slug,
     categoryLabel: a.category_label,
     readTime: a.read_time,
     authorName: a.author_name,

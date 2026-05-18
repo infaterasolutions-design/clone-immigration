@@ -7,7 +7,7 @@ export async function getSidebarData() {
     // 1. Fetch Latest News (top 3 most recent articles)
     const { data: latestData } = await supabase
       .from('articles')
-      .select('id, title, slug, published_at')
+      .select('id, title, slug, cluster_slug, published_at')
       .eq('status', 'published')
       .lte('published_at', new Date().toISOString())
       .order('published_at', { ascending: false })
@@ -16,7 +16,7 @@ export async function getSidebarData() {
     // 2. Fetch Most Viewed (top 3 articles marked as is_most_viewed = true)
     let { data: mostViewedData } = await supabase
       .from('articles')
-      .select('id, title, slug, category_label')
+      .select('id, title, slug, cluster_slug, category_label')
       .eq('status', 'published')
       .eq('is_most_viewed', true)
       .limit(3);
@@ -25,7 +25,7 @@ export async function getSidebarData() {
     if (!mostViewedData || mostViewedData.length === 0) {
       const { data: fallbackData } = await supabase
         .from('articles')
-        .select('id, title, slug, category_label')
+        .select('id, title, slug, cluster_slug, category_label')
         .eq('status', 'published')
         .limit(3);
       mostViewedData = fallbackData;

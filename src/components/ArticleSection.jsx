@@ -232,6 +232,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                 ? { name: article.subCategorySlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), slug: article.subCategorySlug }
                 : null
             }
+            articleTitle={article.title}
           />
           <div className="flex items-center gap-3 mb-5 md:mb-3 flex-wrap">
             {article.cluster_slug ? (

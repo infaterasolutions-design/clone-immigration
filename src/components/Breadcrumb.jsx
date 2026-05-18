@@ -8,8 +8,9 @@ const SITE_URL = "https://www.unitedstatesimmigrationnews.com";
  * Props:
  * - category: { name, slug } — the parent category
  * - subcategory: { name, slug } — optional subcategory
+ * - articleTitle: optional string for the current article
  */
-export default function Breadcrumb({ category, subcategory }) {
+export default function Breadcrumb({ category, subcategory, articleTitle }) {
   const items = [
     { name: "Home", url: "/" },
   ];
@@ -20,6 +21,10 @@ export default function Breadcrumb({ category, subcategory }) {
 
   if (subcategory) {
     items.push({ name: subcategory.name, url: `/${category.slug}/${subcategory.slug}/` });
+  }
+
+  if (articleTitle) {
+    items.push({ name: articleTitle, url: "#" });
   }
 
   // JSON-LD BreadcrumbList structured data

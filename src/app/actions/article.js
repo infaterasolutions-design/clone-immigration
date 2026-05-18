@@ -43,6 +43,8 @@ function mapDbToFrontend(article) {
     categoryLabel: article.category_label,
     categorySlug: article.category_slug,
     subCategorySlug: article.sub_category_slug,
+    cluster_slug: article.cluster_slug,
+    clusterSlug: article.cluster_slug,
     authorName: article.author_name,
     authorImage: article.author_image,
     mainImage: article.main_image,

@@ -59,9 +59,13 @@ export default function NewArticle() {
         setCategories(tree);
       }
       
-      // Extract unique clusters from live events
-      if (eventsData) {
-        const uniqueClusters = Array.from(new Map(eventsData.filter(e => e.topic_url).map(e => [e.topic_url, { slug: e.topic_url, name: e.title }])).values());
+      // Extract unique clusters from live events and parent categories
+      if (eventsData || catData) {
+        const eventClusters = (eventsData || []).filter(e => e.topic_url).map(e => ({ slug: e.topic_url, name: e.title }));
+        const categoryClusters = (catData || []).filter(c => !c.parent_slug).map(c => ({ slug: c.slug, name: `Category: ${c.name}` }));
+        const allClusters = [...eventClusters, ...categoryClusters];
+        
+        const uniqueClusters = Array.from(new Map(allClusters.map(c => [c.slug, c])).values());
         setClusters(uniqueClusters);
       }
     }

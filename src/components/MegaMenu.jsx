@@ -45,7 +45,7 @@ export default function MegaMenu({ categories, menuOpen, onClose }) {
       {/* ═══════════════════════════════════════════
           DESKTOP NAV — horizontal bar with hover dropdowns
           ═══════════════════════════════════════════ */}
-      <nav className="hidden lg:flex flex-1 justify-center items-center gap-4 h-full whitespace-nowrap px-4">
+      <nav className="hidden lg:flex flex-1 justify-center items-center gap-1.5 h-full whitespace-nowrap px-2">
         {/* Category items with dropdowns */}
         {categories.map((cat) => {
           const isActive = activeParent?.slug === cat.slug;
@@ -53,8 +53,8 @@ export default function MegaMenu({ categories, menuOpen, onClose }) {
             <div key={cat.slug} className="nav-item group relative flex items-center py-2">
               <Link
                 href={`/${cat.slug}/`}
-                className={`text-[13px] font-semibold transition-colors flex items-center gap-0.5 ${
-                  isActive ? "text-primary" : "text-slate-600 hover:text-primary"
+                className={`text-[12px] font-semibold transition-colors flex items-center gap-0.5 ${
+                  isActive ? "text-primary" : "text-black hover:text-primary"
                 }`}
               >
                 {cat.name}

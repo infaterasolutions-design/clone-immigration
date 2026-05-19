@@ -5,6 +5,8 @@ import { fetchArticleInitialDataBySlug, fetchNextArticleAction } from "@/app/act
 import { getSidebarData } from "@/app/actions/sidebar";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getLocationBySlug, getArticlesByLocationId } from "@/app/actions/locationActions";
+import CityLocationPage from "@/components/CityLocationPage";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.unitedstatesimmigrationnews.com").replace(/\/+$/, "");
 
@@ -26,6 +28,26 @@ export async function generateMetadata({ params }) {
           canonical: `https://www.unitedstatesimmigrationnews.com/${category.slug}/${subcategory.slug}/`,
         },
         robots: { index: true, follow: true, 'max-image-preview': 'large' },
+      };
+    }
+  }
+
+  // 1.5. Is this a Location page? (slug = state, sub = city)
+  const cityLocation = await getLocationBySlug(sub);
+  if (cityLocation && cityLocation.parent_id) {
+    const stateLocation = await getLocationBySlug(slug);
+    if (stateLocation && cityLocation.parent_id === stateLocation.id) {
+      return {
+        title: `${cityLocation.name}, ${stateLocation.name} Immigration News | United States Immigration News`,
+        description: `Latest US immigration news, visa updates, and policy changes for ${cityLocation.name}, ${stateLocation.name}. Stay informed with breaking coverage.`,
+        openGraph: {
+          title: `${cityLocation.name}, ${stateLocation.name} Immigration News`,
+          description: `Latest immigration news and updates for ${cityLocation.name}, ${stateLocation.name}.`,
+        },
+        alternates: {
+          canonical: `https://www.unitedstatesimmigrationnews.com/${stateLocation.slug}/${cityLocation.slug}/`,
+        },
+        robots: { index: true, follow: true },
       };
     }
   }
@@ -120,6 +142,16 @@ export default async function SubcategoryPage({ params }) {
           activeSubcategory={sub}
         />
       );
+    }
+  }
+
+  // 1.5. Is this a Location page? (slug = state, sub = city)
+  const cityLocation = await getLocationBySlug(sub);
+  if (cityLocation && cityLocation.parent_id) {
+    const stateLocation = await getLocationBySlug(slug);
+    if (stateLocation && cityLocation.parent_id === stateLocation.id) {
+      const articles = await getArticlesByLocationId(cityLocation.id);
+      return <CityLocationPage cityLocation={cityLocation} stateLocation={stateLocation} articles={articles} stateSlug={slug} />;
     }
   }
 

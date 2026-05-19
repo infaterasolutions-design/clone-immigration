@@ -1,50 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
-import { notFound } from "next/navigation";
-import { getLocationBySlug, getArticlesByLocationId } from "@/app/actions/locationActions";
-
-export const revalidate = 60;
 
 const FALLBACK_IMAGE = "/images/logo.png";
 
-export async function generateMetadata({ params }) {
-  const { state, city } = await params;
-  const cityLocation = await getLocationBySlug(city);
-  if (!cityLocation) return { title: "Location Not Found" };
-
-  const stateName = cityLocation.parent?.name || state;
-
-  return {
-    title: `${cityLocation.name}, ${stateName} Immigration News | United States Immigration News`,
-    description: `Latest US immigration news, visa updates, and policy changes for ${cityLocation.name}, ${stateName}. Stay informed with breaking coverage.`,
-    openGraph: {
-      title: `${cityLocation.name}, ${stateName} Immigration News`,
-      description: `Latest immigration news and updates for ${cityLocation.name}, ${stateName}.`,
-    },
-  };
-}
-
-export default async function CityLocationPage({ params }) {
-  const { state, city } = await params;
-
-  const cityLocation = await getLocationBySlug(city);
-  if (!cityLocation) return notFound();
-
-  // Validate parent state matches
-  const stateLocation = await getLocationBySlug(state);
-  if (!stateLocation || cityLocation.parent_id !== stateLocation.id) {
-    return notFound();
-  }
-
-  const articles = await getArticlesByLocationId(cityLocation.id);
-
+export default function CityLocationPage({ cityLocation, stateLocation, articles, stateSlug }) {
   return (
     <div className="max-w-[1298px] mx-auto px-3 md:px-4 lg:px-24 py-6 md:py-8 mb-12">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
         <Link href="/" className="hover:text-primary transition-colors">Home</Link>
         <span>›</span>
-        <Link href={`/location/${state}`} className="hover:text-primary transition-colors">{stateLocation.name}</Link>
+        <Link href={`/${stateSlug}`} className="hover:text-primary transition-colors">{stateLocation.name}</Link>
         <span>›</span>
         <span className="text-slate-800 font-medium">{cityLocation.name}</span>
       </div>

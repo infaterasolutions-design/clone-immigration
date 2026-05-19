@@ -1,37 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { notFound } from "next/navigation";
-import { getLocationBySlug, getChildLocations, getArticlesByState } from "@/app/actions/locationActions";
-
-export const revalidate = 60;
 
 const FALLBACK_IMAGE = "/images/logo.png";
 
-export async function generateMetadata({ params }) {
-  const { state } = await params;
-  const location = await getLocationBySlug(state);
-  if (!location) return { title: "Location Not Found" };
-
-  return {
-    title: `${location.name} Immigration News | United States Immigration News`,
-    description: `Latest US immigration news, visa updates, and policy changes for ${location.name}. Stay informed with breaking coverage.`,
-    openGraph: {
-      title: `${location.name} Immigration News`,
-      description: `Latest immigration news and updates for ${location.name}.`,
-    },
-  };
-}
-
-export default async function StateLocationPage({ params }) {
-  const { state } = await params;
-  const location = await getLocationBySlug(state);
-  if (!location) return notFound();
-
-  const [cities, articles] = await Promise.all([
-    getChildLocations(location.id),
-    getArticlesByState(location.id),
-  ]);
-
+export default function StateLocationPage({ location, cities, articles, stateSlug }) {
   return (
     <div className="max-w-[1298px] mx-auto px-3 md:px-4 lg:px-24 py-6 md:py-8 mb-12">
       {/* Breadcrumbs */}
@@ -62,7 +34,7 @@ export default async function StateLocationPage({ params }) {
             {cities.map((city) => (
               <Link
                 key={city.id}
-                href={`/location/${state}/${city.slug}`}
+                href={`/${stateSlug}/${city.slug}`}
                 className="px-4 py-2 bg-slate-100 hover:bg-primary hover:text-white text-slate-700 rounded-full text-sm font-medium transition-all"
               >
                 {city.name}

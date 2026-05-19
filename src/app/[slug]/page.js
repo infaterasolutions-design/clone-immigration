@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getCategoryBySlug, isParentCategory } from "@/lib/categoryConfig";
 import { getLiveEventIdByTopicUrl } from "@/lib/liveEventUrls";
+import { getLocationBySlug, getArticlesByState, getChildLocations } from "@/app/actions/locationActions";
+import StateLocationPage from "@/components/StateLocationPage";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.unitedstatesimmigrationnews.com").replace(/\/+$/, "");
 
@@ -26,6 +28,23 @@ export async function generateMetadata({ params }) {
         canonical: `https://www.unitedstatesimmigrationnews.com/${category.slug}/`,
       },
       robots: { index: true, follow: true, 'max-image-preview': 'large' },
+    };
+  }
+
+  // ─── Check if slug is a location (state) ───
+  const location = await getLocationBySlug(slug);
+  if (location && !location.parent_id) {
+    return {
+      title: `${location.name} Immigration News | United States Immigration News`,
+      description: `Latest US immigration news, visa updates, and policy changes for ${location.name}. Stay informed with breaking coverage.`,
+      openGraph: {
+        title: `${location.name} Immigration News`,
+        description: `Latest immigration news and updates for ${location.name}.`,
+      },
+      alternates: {
+        canonical: `https://www.unitedstatesimmigrationnews.com/${location.slug}/`,
+      },
+      robots: { index: true, follow: true },
     };
   }
 
@@ -141,6 +160,16 @@ export default async function SlugPage({ params }) {
         articles={articles || []}
       />
     );
+  }
+
+  // ─── Smart Detection: Is this a location (state)? ───
+  const location = await getLocationBySlug(slug);
+  if (location && !location.parent_id) {
+    const [cities, articles] = await Promise.all([
+      getChildLocations(location.id),
+      getArticlesByState(location.id),
+    ]);
+    return <StateLocationPage location={location} cities={cities} articles={articles} stateSlug={slug} />;
   }
 
   // ─── Smart Detection: Is this a live event (topic_url or id)? ───

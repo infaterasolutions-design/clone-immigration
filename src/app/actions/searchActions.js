@@ -7,7 +7,7 @@ export async function searchInternalArticles(query) {
 
   const { data, error } = await supabase
     .from('articles')
-    .select('title, slug, category_label, published_at')
+    .select('title, slug, cluster_slug, category_label, published_at')
     .eq('status', 'published')
     .or(`title.ilike.%${query}%,slug.ilike.%${query}%`)
     .order('published_at', { ascending: false })

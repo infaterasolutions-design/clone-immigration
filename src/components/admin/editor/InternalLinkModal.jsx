@@ -27,7 +27,11 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
     ];
     for (const pattern of patterns) {
       const match = url.match(pattern);
-      if (match && match[1]) return match[1].replace(/^\/+/, '');
+      if (match && match[1]) {
+        const path = match[1].replace(/^\/+/, '');
+        const segments = path.split('/').filter(Boolean);
+        return segments[segments.length - 1] || null;
+      }
     }
     return null;
   };
@@ -82,7 +86,9 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
   };
 
   const handleSelectArticle = (article) => {
-    const url = `/${article.slug}`;
+    const url = article.cluster_slug 
+      ? `/${article.cluster_slug}/${article.slug}`
+      : `/${article.slug}`;
     onInsert({ url, openInNewTab });
     onClose();
   };
@@ -95,7 +101,7 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
   if (!isOpen) return null;
 
   const isOwnSiteUrl = query.includes('unitedstatesimmigrationnews.com') || query.includes('localhost:');
-  const isExternalLikely = (query.startsWith("http") || query.includes(".com") || query.includes(".org")) && !isOwnSiteUrl;
+  const isUrlOrPath = query.startsWith("http://") || query.startsWith("https://") || query.startsWith("/") || query.includes(".com") || query.includes(".org") || query.includes(".gov") || query.includes(".edu") || isOwnSiteUrl;
 
   const handleManualUrlSubmit = (e) => {
     e.preventDefault();
@@ -183,7 +189,7 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
             </div>
           )}
 
-          {!isLoading && query && results.length === 0 && !isExternalLikely && !isOwnSiteUrl && (
+          {!isLoading && query && results.length === 0 && !isUrlOrPath && (
             <div className="p-4 text-center text-sm text-slate-500">
               No articles found. Try another search or paste a URL.
             </div>
@@ -191,20 +197,20 @@ export default function InternalLinkModal({ isOpen, onClose, onInsert, initialUr
 
           {!isLoading && isOwnSiteUrl && results.length === 0 && (
             <div className="p-4 text-center text-sm text-slate-500">
-              No matching article found for this URL.
+              No matching article found for this URL. You can still use the manual link option below.
             </div>
           )}
 
-          {!isLoading && isExternalLikely && (
+          {!isLoading && isUrlOrPath && (
             <button
               onClick={handleManualUrlSubmit}
-              className="w-full flex items-center gap-3 p-3 text-left rounded-lg hover:bg-indigo-50 transition-colors group"
+              className="w-full flex items-center gap-3 p-3 text-left rounded-lg bg-indigo-50 hover:bg-indigo-100 transition-colors group mb-3 border border-indigo-150"
             >
               <div className="w-10 h-10 rounded bg-indigo-100 flex items-center justify-center text-indigo-600 flex-shrink-0">
                 <ExternalLink size={20} />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-slate-900 truncate">Link to external URL</h4>
+                <h4 className="font-medium text-slate-900 truncate">Use exact link address</h4>
                 <p className="text-sm text-slate-500 truncate">{query}</p>
               </div>
             </button>

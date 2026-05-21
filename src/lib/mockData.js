@@ -88,8 +88,19 @@ export async function getAllArticles() {
 }
 
 function mapArticle(a) {
+  let formattedDate = a.date;
+  if (a.published_at) {
+    const d = new Date(a.published_at);
+    if (!isNaN(d.getTime())) {
+      // Use UTC timezone so that the date displayed matches the literal UTC date of published_at 
+      // rather than shifting based on server timezone.
+      formattedDate = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+    }
+  }
+
   return {
     ...a,
+    date: formattedDate,
     categorySlug: a.category_slug,
     subCategorySlug: a.sub_category_slug,
     cluster_slug: a.cluster_slug,

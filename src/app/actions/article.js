@@ -38,8 +38,17 @@ function mapDbToFrontend(article) {
     };
   }
 
+  let formattedDate = article.date;
+  if (article.published_at) {
+    const d = new Date(article.published_at);
+    if (!isNaN(d.getTime())) {
+      formattedDate = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+    }
+  }
+
   return {
     ...article,
+    date: formattedDate,
     categoryLabel: article.category_label,
     categorySlug: article.category_slug,
     subCategorySlug: article.sub_category_slug,

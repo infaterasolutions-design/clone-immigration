@@ -1,0 +1,50 @@
+"use server";
+
+import { createClient } from "@supabase/supabase-js";
+
+// Note: Ensure this uses service role key if available, otherwise anon key
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+export async function recordInteraction(articleId, type) {
+  try {
+    // Determine which column to update based on the type
+    let columnToUpdate;
+    if (type === "like") columnToUpdate = "likes_count";
+    else if (type === "save") columnToUpdate = "saves_count";
+    else if (type === "share") columnToUpdate = "shares_count";
+    else return { success: false, error: "Invalid interaction type" };
+
+    // Fetch the current value
+    const { data: article, error: fetchError } = await supabase
+      .from("articles")
+      .select(columnToUpdate)
+      .eq("id", articleId)
+      .single();
+
+    if (fetchError) {
+      console.error("Failed to fetch article for interaction:", fetchError);
+      return { success: false, error: fetchError.message };
+    }
+
+    const currentValue = article[columnToUpdate] || 0;
+    const newValue = currentValue + 1;
+
+    // Update the value
+    const { error: updateError } = await supabase
+      .from("articles")
+      .update({ [columnToUpdate]: newValue })
+      .eq("id", articleId);
+
+    if (updateError) {
+      console.error("Failed to update interaction count:", updateError);
+      return { success: false, error: updateError.message };
+    }
+
+    return { success: true, count: newValue };
+  } catch (error) {
+    console.error("Interaction server action failed:", error);
+    return { success: false, error: error.message };
+  }
+}

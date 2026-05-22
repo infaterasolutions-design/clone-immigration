@@ -202,8 +202,22 @@ export default function EditArticle() {
             <button onClick={() => router.push('/admin/articles')} className="text-slate-500 hover:text-slate-800 transition-colors cursor-pointer text-sm font-medium flex items-center gap-1">
               ← Back
             </button>
-            <div className="h-4 w-px bg-slate-200" />
-            <h1 className="text-lg font-bold text-slate-900">Edit Post</h1>
+            <div className="admin-page-header" style={{ marginBottom: 20 }}>
+              <div>
+                <h1 className="text-lg font-bold text-slate-900">Edit Article</h1>
+                <div style={{ display: "flex", gap: "16px", marginTop: "8px", fontSize: "0.85rem", color: "#64748b" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>thumb_up</span> {form.likes_count || 0} Likes
+                  </span>
+                  <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>bookmark</span> {form.saves_count || 0} Saves
+                  </span>
+                  <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>share</span> {form.shares_count || 0} Shares
+                  </span>
+                </div>
+              </div>
+            </div>
             <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${form.status === 'published' ? 'bg-emerald-500/20 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
               {form.status}
             </span>

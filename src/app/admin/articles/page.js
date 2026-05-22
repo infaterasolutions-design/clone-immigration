@@ -56,9 +56,17 @@ export default function AdminArticles() {
     fetchArticles();
   }
 
-  const filtered = filter === "all" ? articles :
-    filter === "featured" ? articles.filter(a => a.is_featured) :
-    articles.filter(a => a.category_label === filter);
+  const filtered = (() => {
+    let result = articles;
+    if (filter === "featured") result = articles.filter(a => a.is_featured);
+    else if (filter !== "all" && !filter.startsWith("sort_")) result = articles.filter(a => a.category_label === filter);
+
+    if (filter === "sort_likes") result = [...result].sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+    if (filter === "sort_saves") result = [...result].sort((a, b) => (b.saves_count || 0) - (a.saves_count || 0));
+    if (filter === "sort_shares") result = [...result].sort((a, b) => (b.shares_count || 0) - (a.shares_count || 0));
+    
+    return result;
+  })();
 
   const categories = [...new Set(articles.map(a => a.category_label).filter(Boolean))];
 
@@ -83,6 +91,15 @@ export default function AdminArticles() {
         </span>
       );
     }},
+    { key: "likes_count", label: "Likes", render: (row) => (
+      <span style={{ fontWeight: "bold", color: "#64748b" }}>{row.likes_count || 0}</span>
+    )},
+    { key: "saves_count", label: "Saves", render: (row) => (
+      <span style={{ fontWeight: "bold", color: "#64748b" }}>{row.saves_count || 0}</span>
+    )},
+    { key: "shares_count", label: "Shares", render: (row) => (
+      <span style={{ fontWeight: "bold", color: "#64748b" }}>{row.shares_count || 0}</span>
+    )},
     { key: "published_at", label: "Go-Live", render: (row) => (
       <span style={{ color: "#71717a", fontSize: "0.8rem" }}>
         {row.published_at ? new Date(row.published_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : "—"}
@@ -107,9 +124,14 @@ export default function AdminArticles() {
       </div>
 
       {/* Filter bar */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap", alignItems: "center" }}>
         <button className={`admin-btn admin-btn-sm ${filter === "all" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("all")}>All ({articles.length})</button>
         <button className={`admin-btn admin-btn-sm ${filter === "featured" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("featured")}>⭐ Featured</button>
+        <div style={{ width: 1, height: 20, backgroundColor: "#e2e8f0", margin: "0 4px" }} />
+        <button className={`admin-btn admin-btn-sm ${filter === "sort_likes" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("sort_likes")}>Most Liked</button>
+        <button className={`admin-btn admin-btn-sm ${filter === "sort_saves" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("sort_saves")}>Most Saved</button>
+        <button className={`admin-btn admin-btn-sm ${filter === "sort_shares" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("sort_shares")}>Most Shared</button>
+        <div style={{ width: 1, height: 20, backgroundColor: "#e2e8f0", margin: "0 4px" }} />
         {categories.map(cat => (
           <button key={cat} className={`admin-btn admin-btn-sm ${filter === cat ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter(cat)}>{cat}</button>
         ))}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import SidebarWidgets from "./SidebarWidgets";
 import RelatedArticles from "./RelatedArticles";
+import { recordInteraction } from "@/app/actions/interactions";
 
 import Breadcrumb from "./Breadcrumb";
 
@@ -14,10 +15,48 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
   const midArticles = customWidgets.mid || [];
   const endArticles = customWidgets.end || [];
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showShareMenu, setShowShareMenu] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+
+  // Independent interaction states
+  const [leftIsLiked, setLeftIsLiked] = useState(false);
+  const [leftIsSaved, setLeftIsSaved] = useState(false);
+  const [showLeftShare, setShowLeftShare] = useState(false);
+  const [leftLikesCount, setLeftLikesCount] = useState(article.likes_count || 0);
+  const [leftSavesCount, setLeftSavesCount] = useState(article.saves_count || 0);
+
+  const [topIsLiked, setTopIsLiked] = useState(false);
+  const [topIsSaved, setTopIsSaved] = useState(false);
+  const [showTopShare, setShowTopShare] = useState(false);
+  const [topLikesCount, setTopLikesCount] = useState(article.likes_count || 0);
+  const [topSavesCount, setTopSavesCount] = useState(article.saves_count || 0);
+
   const [copySuccess, setCopySuccess] = useState(false);
+
+  useEffect(() => {
+    // Check localStorage on mount
+    setLeftIsLiked(!!localStorage.getItem(`liked_left_${article.id}`));
+    setLeftIsSaved(!!localStorage.getItem(`saved_left_${article.id}`));
+    setTopIsLiked(!!localStorage.getItem(`liked_top_${article.id}`));
+    setTopIsSaved(!!localStorage.getItem(`saved_top_${article.id}`));
+  }, [article.id]);
+
+  const handleInteraction = async (position, type) => {
+    const storageKey = `${type}_${position}_${article.id}`;
+    if (localStorage.getItem(storageKey)) return; // Prevent multiple interactions
+
+    localStorage.setItem(storageKey, "true");
+
+    // Optimistic UI update
+    if (position === "left") {
+      if (type === "like") { setLeftIsLiked(true); setLeftLikesCount(c => c + 1); }
+      if (type === "save") { setLeftIsSaved(true); setLeftSavesCount(c => c + 1); }
+    } else {
+      if (type === "like") { setTopIsLiked(true); setTopLikesCount(c => c + 1); }
+      if (type === "save") { setTopIsSaved(true); setTopSavesCount(c => c + 1); }
+    }
+
+    // Server action
+    await recordInteraction(article.id, type);
+  };
 
   // Build the full public URL for this article
   const getArticleUrl = () => {
@@ -53,13 +92,16 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
         break;
       case 'email':
         window.location.href = `mailto:?subject=${encodedTitle}&body=${encodedTitle}%0A%0ARead more: ${encodedUrl}`;
-        setShowShareMenu(false);
+        setShowLeftShare(false);
+        setShowTopShare(false);
         return;
       default:
         return;
     }
     window.open(shareUrl, 'share_popup', 'width=600,height=500,scrollbars=yes,resizable=yes,noopener,noreferrer');
-    setShowShareMenu(false);
+    setShowLeftShare(false);
+    setShowTopShare(false);
+    recordInteraction(article.id, "share");
   };
 
   const handleCopyLink = async () => {
@@ -68,7 +110,8 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
       setCopySuccess(true);
       setTimeout(() => {
         setCopySuccess(false);
-        setShowShareMenu(false);
+        setShowLeftShare(false);
+        setShowTopShare(false);
       }, 2000);
     } catch {
       const input = document.createElement('input');
@@ -80,7 +123,8 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
       setCopySuccess(true);
       setTimeout(() => {
         setCopySuccess(false);
-        setShowShareMenu(false);
+        setShowLeftShare(false);
+        setShowTopShare(false);
       }, 2000);
     }
   };
@@ -182,20 +226,22 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
         <aside className="hidden lg:flex flex-col items-end pt-[190px] pr-2 xl:pr-6 lg:col-span-1">
           <div className="sticky top-32 flex flex-col gap-4">
              <button
-               onClick={() => setIsLiked(!isLiked)}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
-                 isLiked ? 'bg-primary text-white border-primary scale-110' : 'bg-transparent text-slate-500 border-slate-200 hover:text-primary hover:border-primary'
+               onClick={() => handleInteraction("left", "like")}
+               className={`h-10 px-4 rounded-full flex items-center justify-center gap-2 transition-all border ${
+                 leftIsLiked ? 'bg-primary text-white border-primary scale-105' : 'bg-transparent text-slate-500 border-slate-200 hover:text-primary hover:border-primary'
                }`}
              >
                <span className="material-symbols-outlined text-[20px]">thumb_up</span>
+               <span className="text-sm font-bold">{leftLikesCount > 0 ? leftLikesCount : "Like"}</span>
              </button>
              <button
-               onClick={() => setIsSaved(!isSaved)}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
-                 isSaved ? 'bg-amber-500 text-white border-amber-500 scale-110' : 'bg-transparent text-slate-500 border-slate-200 hover:text-amber-500 hover:border-amber-500'
+               onClick={() => handleInteraction("left", "save")}
+               className={`h-10 px-4 rounded-full flex items-center justify-center gap-2 transition-all border ${
+                 leftIsSaved ? 'bg-amber-500 text-white border-amber-500 scale-105' : 'bg-transparent text-slate-500 border-slate-200 hover:text-amber-500 hover:border-amber-500'
                }`}
              >
-               <span className="material-symbols-outlined text-[20px]">{isSaved ? 'bookmark_added' : 'bookmark'}</span>
+               <span className="material-symbols-outlined text-[20px]">{leftIsSaved ? 'bookmark_added' : 'bookmark'}</span>
+               <span className="text-sm font-bold">{leftSavesCount > 0 ? leftSavesCount : "Save"}</span>
              </button>
              <button
                onClick={() => {
@@ -204,16 +250,17 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                    navigator.share({
                      title: article.title || "Article",
                      url: getArticleUrl(),
-                   }).catch((err) => console.log("Share canceled", err));
+                   }).then(() => recordInteraction(article.id, "share")).catch((err) => console.log("Share canceled", err));
                  } else {
-                   setShowShareMenu(!showShareMenu);
+                   setShowLeftShare(!showLeftShare);
                  }
                }}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
-                 showShareMenu ? 'bg-primary text-white border-primary' : 'bg-transparent text-slate-500 border-slate-200 hover:text-primary hover:border-primary'
+               className={`h-10 px-4 rounded-full flex items-center justify-center gap-2 transition-all border ${
+                 showLeftShare ? 'bg-primary text-white border-primary' : 'bg-transparent text-slate-500 border-slate-200 hover:text-primary hover:border-primary'
                }`}
              >
                <span className="material-symbols-outlined text-[20px]">share</span>
+               <span className="text-sm font-bold">Share</span>
              </button>
           </div>
         </aside>
@@ -330,20 +377,22 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
           {/* Action Bar (Above the image) */}
           <div className="flex justify-end gap-2 md:gap-3 mb-2 relative z-20 w-full">
              <button
-               onClick={() => setIsLiked(!isLiked)}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm border ${
-                 isLiked ? 'bg-primary text-white border-primary' : 'bg-surface-container-lowest text-slate-600 border-outline-variant/10 hover:text-primary'
+               onClick={() => handleInteraction("top", "like")}
+               className={`h-10 px-4 rounded-full flex items-center justify-center gap-2 transition-all shadow-sm border ${
+                 topIsLiked ? 'bg-primary text-white border-primary' : 'bg-surface-container-lowest text-slate-600 border-outline-variant/10 hover:text-primary'
                }`}
              >
                <span className="material-symbols-outlined text-[20px]">thumb_up</span>
+               <span className="text-sm font-bold">{topLikesCount > 0 ? topLikesCount : "Like"}</span>
              </button>
              <button
-               onClick={() => setIsSaved(!isSaved)}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm border ${
-                 isSaved ? 'bg-amber-500 text-white border-amber-500' : 'bg-surface-container-lowest text-slate-600 border-outline-variant/10 hover:text-amber-500'
+               onClick={() => handleInteraction("top", "save")}
+               className={`h-10 px-4 rounded-full flex items-center justify-center gap-2 transition-all shadow-sm border ${
+                 topIsSaved ? 'bg-amber-500 text-white border-amber-500' : 'bg-surface-container-lowest text-slate-600 border-outline-variant/10 hover:text-amber-500'
                }`}
              >
-               <span className="material-symbols-outlined text-[20px]">{isSaved ? 'bookmark_added' : 'bookmark'}</span>
+               <span className="material-symbols-outlined text-[20px]">{topIsSaved ? 'bookmark_added' : 'bookmark'}</span>
+               <span className="text-sm font-bold">{topSavesCount > 0 ? topSavesCount : "Save"}</span>
              </button>
              <div className="relative">
                <button 
@@ -353,21 +402,22 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                      navigator.share({
                        title: article.title || "Article",
                        url: getArticleUrl(),
-                     }).catch((err) => console.log("Share canceled", err));
+                     }).then(() => recordInteraction(article.id, "share")).catch((err) => console.log("Share canceled", err));
                    } else {
-                     setShowShareMenu(!showShareMenu);
+                     setShowTopShare(!showTopShare);
                    }
                  }}
-                 onBlur={() => setTimeout(() => setShowShareMenu(false), 200)}
-                 className={`w-10 h-10 rounded-full flex items-center justify-center ${showShareMenu ? 'bg-primary text-white' : 'bg-surface-container-lowest text-slate-600'} hover:text-white hover:bg-primary transition-all shadow-sm border border-outline-variant/10`}
+                 onBlur={() => setTimeout(() => setShowTopShare(false), 200)}
+                 className={`h-10 px-4 rounded-full flex items-center justify-center gap-2 ${showTopShare ? 'bg-primary text-white' : 'bg-surface-container-lowest text-slate-600'} hover:text-white hover:bg-primary transition-all shadow-sm border border-outline-variant/10`}
                >
                  <span className="material-symbols-outlined text-[20px]">share</span>
+                 <span className="text-sm font-bold">Share</span>
                </button>
                
                {/* Share Dropdown */}
                <div 
                  onMouseDown={(e) => e.preventDefault()}
-                 className={`absolute top-12 right-0 mt-2 bg-white rounded-full shadow-2xl border border-slate-200 p-1.5 flex flex-row items-center gap-1 z-30 transition-all duration-300 ease-out origin-top-right ${showShareMenu ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'}`}>
+                 className={`absolute top-12 right-0 mt-2 bg-white rounded-full shadow-2xl border border-slate-200 p-1.5 flex flex-row items-center gap-1 z-30 transition-all duration-300 ease-out origin-top-right ${showTopShare ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'}`}>
                  <button onMouseDown={() => handleShare('facebook')} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-[#1877F2] transition-colors">
                    <span className="font-bold text-lg leading-none mt-[-2px]">f</span>
                  </button>

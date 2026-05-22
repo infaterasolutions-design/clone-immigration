@@ -1,12 +1,19 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { uploadMediaToSupabase } from "../../../lib/adminHelpers";
 import LocationSelector from "./LocationSelector";
 import CustomWidgetBuilder from "./CustomWidgetBuilder";
 
 export default function SettingsPanel({ form, handleChange, categories, clusters = [] }) {
   const [isUploading, setIsUploading] = useState(false);
+  const [tagsInput, setTagsInput] = useState("");
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (form.tags && form.tags.length > 0 && tagsInput === "") {
+      setTagsInput(form.tags.join(', '));
+    }
+  }, [form.tags]);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -175,6 +182,22 @@ export default function SettingsPanel({ form, handleChange, categories, clusters
               value={form.read_time || ""} 
               onChange={handleChange}
               placeholder="e.g. 5 min read"
+              className="w-full bg-slate-50 border border-slate-200 rounded p-2 text-sm text-slate-800 outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-slate-500 mb-1">Tags (Comma separated)</label>
+            <input 
+              type="text" 
+              value={tagsInput} 
+              onChange={(e) => {
+                const val = e.target.value;
+                setTagsInput(val);
+                const tagsArray = val.split(',').map(t => t.trim()).filter(Boolean);
+                handleChange({ target: { name: "tags", value: tagsArray } });
+              }}
+              placeholder="e.g. visa, h1b, policy"
               className="w-full bg-slate-50 border border-slate-200 rounded p-2 text-sm text-slate-800 outline-none focus:border-indigo-500"
             />
           </div>

@@ -595,12 +595,28 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
               )}
             </div>
 
-            {/* Tags area now flows naturally within the expander, but hidden when collapsed */}
-            <div className={`mt-6 mb-4 flex flex-wrap gap-2 pt-6 border-t border-outline-variant/20 ${!isExpanded ? 'hidden' : 'flex'}`}>
-              {article.tags?.map((tag) => (
-                 <span key={tag} className="px-4 py-2 bg-surface-container-high rounded-full text-xs font-semibold text-on-surface-variant">#{tag}</span>
-              ))}
-            </div>
+            {/* Related Topics / Tags */}
+            {article.tags && article.tags.length > 0 && (
+              <div className={`mt-8 mb-4 flex flex-col gap-3 pt-6 border-t border-slate-100 ${!isExpanded ? 'hidden' : 'flex'}`}>
+                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-primary">sell</span>
+                  Related Topics
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {article.tags.map((tag) => (
+                    <Link 
+                      key={tag} 
+                      href={`/search?q=${encodeURIComponent(tag)}`}
+                      className="group"
+                    >
+                      <span className="rounded-pill inline-flex items-center justify-center px-4 py-1.5 bg-slate-50 border border-slate-200 group-hover:border-primary group-hover:bg-primary/5 group-hover:text-primary text-xs font-bold text-slate-700 transition-all shadow-sm">
+                        {tag}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* End of article recommendation widget has been moved to the rich text parsing logic */}
             

@@ -99,6 +99,9 @@ body {
 /* Author avatar circular override — needed because the global * rule strips border-radius */
 .author-avatar, .author-avatar img { border-radius: 50% !important; }
 
+/* Tags rounded pill override */
+.rounded-pill { border-radius: 9999px !important; }
+
 /* Specific style for pulse animation from live updates page */
 @keyframes pulse-red {
     0% { opacity: 1; transform: scale(1); }

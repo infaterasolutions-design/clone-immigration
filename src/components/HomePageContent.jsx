@@ -13,14 +13,43 @@ const FloatingShareButton = dynamic(() => import("@/components/FloatingShareButt
 // Placeholder fallback image
 const FALLBACK_IMAGE = "/images/logo.png";
 
-export default function HomePageContent({ articles = [], tickerItems = [], videoArticles = [] }) {
+export default function HomePageContent({ articles = [], tickerItems = [], videoArticles = [], layout = null }) {
+  // Helper to find article by ID
+  const findById = (id) => id ? articles.find(a => a.id === id) : null;
+
+  // 1. Determine Hero Article
+  // Prioritize manually selected hero, then fallback to is_featured, then newest article
+  const manualHero = findById(layout?.hero_article_id);
   const featuredArticle = articles.find(a => a.is_featured === true);
-  const heroArticle = featuredArticle || articles[0];
+  const heroArticle = manualHero || featuredArticle || articles[0];
+
+  // 2. Filter out Hero from remaining
   const remainingArticles = articles.filter(a => a.id !== heroArticle?.id);
-  const gridArticles = remainingArticles.slice(0, 4);
-  const topStoryArticles = remainingArticles.slice(4, 8);
-  const sidebarLatestArticles = remainingArticles.slice(4, 7);
-  const sidebarMostViewed = remainingArticles.slice(0, 3);
+
+  // 3. Determine Grid Articles
+  const gridArticles = [];
+  
+  // Try to push manually selected grid items if they exist
+  if (layout?.grid1_article_id) { const a = findById(layout.grid1_article_id); if (a && a.id !== heroArticle?.id) gridArticles.push(a); }
+  if (layout?.grid2_article_id) { const a = findById(layout.grid2_article_id); if (a && a.id !== heroArticle?.id && !gridArticles.includes(a)) gridArticles.push(a); }
+  if (layout?.grid3_article_id) { const a = findById(layout.grid3_article_id); if (a && a.id !== heroArticle?.id && !gridArticles.includes(a)) gridArticles.push(a); }
+  if (layout?.grid4_article_id) { const a = findById(layout.grid4_article_id); if (a && a.id !== heroArticle?.id && !gridArticles.includes(a)) gridArticles.push(a); }
+
+  // Fill remaining slots with newest articles
+  let remainingIndex = 0;
+  while (gridArticles.length < 4 && remainingIndex < remainingArticles.length) {
+    const candidate = remainingArticles[remainingIndex];
+    if (!gridArticles.includes(candidate)) {
+      gridArticles.push(candidate);
+    }
+    remainingIndex++;
+  }
+
+  // Determine sidebar / top stories based on what's left after grid
+  const unassignedArticles = remainingArticles.filter(a => !gridArticles.includes(a));
+  const topStoryArticles = unassignedArticles.slice(0, 4);
+  const sidebarLatestArticles = unassignedArticles.slice(0, 3);
+  const sidebarMostViewed = unassignedArticles.slice(3, 6); // Just a fallback for mock data
 
   return (<>
     <main className="mt-2 md:mt-4 px-3 md:px-4 lg:px-0 mb-12">

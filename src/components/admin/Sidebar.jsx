@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { name: 'Live Updates', path: '/admin/live-updates', icon: '🔴', roles: ['super_admin', 'editor', 'viewer'], section: 'Content' },
   { name: 'Media Library', path: '/admin/media', icon: '🎬', roles: ['super_admin', 'editor', 'viewer'], section: 'Content' },
   { name: 'Subscribers', path: '/admin/subscribers', icon: '📧', roles: ['super_admin', 'editor'], section: 'Audience' },
+  { name: 'Homepage Layout', path: '/admin/layout', icon: '📑', roles: ['super_admin', 'editor'], section: 'Settings' },
   { name: 'Users', path: '/admin/users', icon: '👤', roles: ['super_admin'], section: 'Settings' },
 ];
 

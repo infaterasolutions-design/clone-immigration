@@ -224,41 +224,69 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
       <article className={`grid grid-cols-1 lg:grid-cols-8 gap-8 md:gap-12 relative ${!isFirst ? 'mt-4 md:mt-6 pt-4 border-t-2 border-slate-100' : ''}`}>
         {/* Floating Social Interaction Bar (Desktop) */}
         <aside className="hidden lg:flex flex-col items-end pt-[190px] pr-2 xl:pr-6 lg:col-span-1">
-          <div className="sticky top-32 flex flex-col gap-4">
+          <div className="sticky top-32 flex flex-col gap-5 items-end">
              <button
                onClick={() => handleInteraction("left", "like")}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
-                 leftIsLiked ? 'bg-primary text-white border-primary scale-110' : 'bg-transparent text-slate-500 border-slate-200 hover:text-primary hover:border-primary'
+               className={`flex items-center justify-center gap-1.5 transition-all ${
+                 leftIsLiked ? 'text-primary scale-110' : 'text-slate-400 hover:text-primary'
                }`}
              >
-               <span className="material-symbols-outlined text-[20px]">thumb_up</span>
+               <span className="material-symbols-outlined text-[22px]">thumb_up</span>
+               {leftLikesCount > 0 && <span className="text-sm font-bold">{leftLikesCount}</span>}
              </button>
              <button
                onClick={() => handleInteraction("left", "save")}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
-                 leftIsSaved ? 'bg-amber-500 text-white border-amber-500 scale-110' : 'bg-transparent text-slate-500 border-slate-200 hover:text-amber-500 hover:border-amber-500'
+               className={`flex items-center justify-center gap-1.5 transition-all ${
+                 leftIsSaved ? 'text-amber-500 scale-110' : 'text-slate-400 hover:text-amber-500'
                }`}
              >
-               <span className="material-symbols-outlined text-[20px]">{leftIsSaved ? 'bookmark_added' : 'bookmark'}</span>
+               <span className="material-symbols-outlined text-[22px]">{leftIsSaved ? 'bookmark_added' : 'bookmark'}</span>
+               {leftSavesCount > 0 && <span className="text-sm font-bold">{leftSavesCount}</span>}
              </button>
-             <button
-               onClick={() => {
-                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                 if (isMobile && navigator.share) {
-                   navigator.share({
-                     title: article.title || "Article",
-                     url: getArticleUrl(),
-                   }).then(() => recordInteraction(article.id, "share")).catch((err) => console.log("Share canceled", err));
-                 } else {
-                   setShowLeftShare(!showLeftShare);
-                 }
-               }}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
-                 showLeftShare ? 'bg-primary text-white border-primary' : 'bg-transparent text-slate-500 border-slate-200 hover:text-primary hover:border-primary'
-               }`}
-             >
-               <span className="material-symbols-outlined text-[20px]">share</span>
-             </button>
+             <div className="relative flex justify-end">
+               <button
+                 onClick={() => {
+                   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                   if (isMobile && navigator.share) {
+                     navigator.share({
+                       title: article.title || "Article",
+                       url: getArticleUrl(),
+                     }).then(() => recordInteraction(article.id, "share")).catch((err) => console.log("Share canceled", err));
+                   } else {
+                     setShowLeftShare(!showLeftShare);
+                   }
+                 }}
+                 onBlur={() => setTimeout(() => setShowLeftShare(false), 200)}
+                 className={`flex items-center justify-center transition-all ${
+                   showLeftShare ? 'text-primary scale-110' : 'text-slate-400 hover:text-primary'
+                 }`}
+               >
+                 <span className="material-symbols-outlined text-[22px]">share</span>
+               </button>
+
+               {/* Share Dropdown */}
+               <div 
+                 onMouseDown={(e) => e.preventDefault()}
+                 className={`absolute left-full top-0 ml-2 bg-white rounded-full shadow-2xl border border-slate-200 p-1.5 flex flex-col items-center gap-1 z-30 transition-all duration-300 ease-out origin-left ${showLeftShare ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'}`}>
+                 <button onMouseDown={() => handleShare('facebook')} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-[#1877F2] transition-colors">
+                   <span className="font-bold text-lg leading-none mt-[-2px]">f</span>
+                 </button>
+                 <div className="h-px w-5 bg-slate-200 my-0.5" />
+                 <button onMouseDown={() => handleShare('twitter')} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-900 transition-colors">
+                   <span className="font-bold text-lg leading-none mt-[-2px]">𝕏</span>
+                 </button>
+                 <div className="h-px w-5 bg-slate-200 my-0.5" />
+                 <button onMouseDown={() => handleShare('linkedin')} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
+                   <Image src="/social/linkedin.png" alt="LinkedIn" width={16} height={16} className="w-4 h-4 object-contain opacity-80" />
+                 </button>
+                 <div className="h-px w-5 bg-slate-200 my-0.5" />
+                 <div className="relative">
+                   <button onMouseDown={handleCopyLink} className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${copySuccess ? 'bg-green-50 text-green-600' : 'hover:bg-slate-100 text-slate-600'}`}>
+                     <span className="material-symbols-outlined text-[18px]">{copySuccess ? 'check' : 'link'}</span>
+                   </button>
+                 </div>
+               </div>
+             </div>
           </div>
         </aside>
 
@@ -372,24 +400,26 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
           )}
 
           {/* Action Bar (Above the image) */}
-          <div className="flex justify-end gap-2 md:gap-3 mb-2 relative z-20 w-full">
+          <div className="flex justify-end gap-5 mb-3 relative z-20 w-full items-center">
              <button
                onClick={() => handleInteraction("top", "like")}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm border ${
-                 topIsLiked ? 'bg-primary text-white border-primary' : 'bg-surface-container-lowest text-slate-600 border-outline-variant/10 hover:text-primary'
+               className={`flex items-center justify-center gap-1.5 transition-all ${
+                 topIsLiked ? 'text-primary scale-105' : 'text-slate-500 hover:text-primary'
                }`}
              >
-               <span className="material-symbols-outlined text-[20px]">thumb_up</span>
+               <span className="material-symbols-outlined text-[22px]">thumb_up</span>
+               {topLikesCount > 0 && <span className="text-sm font-bold">{topLikesCount}</span>}
              </button>
              <button
                onClick={() => handleInteraction("top", "save")}
-               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm border ${
-                 topIsSaved ? 'bg-amber-500 text-white border-amber-500' : 'bg-surface-container-lowest text-slate-600 border-outline-variant/10 hover:text-amber-500'
+               className={`flex items-center justify-center gap-1.5 transition-all ${
+                 topIsSaved ? 'text-amber-500 scale-105' : 'text-slate-500 hover:text-amber-500'
                }`}
              >
-               <span className="material-symbols-outlined text-[20px]">{topIsSaved ? 'bookmark_added' : 'bookmark'}</span>
+               <span className="material-symbols-outlined text-[22px]">{topIsSaved ? 'bookmark_added' : 'bookmark'}</span>
+               {topSavesCount > 0 && <span className="text-sm font-bold">{topSavesCount}</span>}
              </button>
-             <div className="relative">
+             <div className="relative flex items-center">
                <button 
                  onClick={() => {
                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -403,9 +433,9 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                    }
                  }}
                  onBlur={() => setTimeout(() => setShowTopShare(false), 200)}
-                 className={`w-10 h-10 rounded-full flex items-center justify-center ${showTopShare ? 'bg-primary text-white' : 'bg-surface-container-lowest text-slate-600'} hover:text-white hover:bg-primary transition-all shadow-sm border border-outline-variant/10`}
+                 className={`flex items-center justify-center transition-all ${showTopShare ? 'text-primary scale-105' : 'text-slate-500 hover:text-primary'}`}
                >
-                 <span className="material-symbols-outlined text-[20px]">share</span>
+                 <span className="material-symbols-outlined text-[22px]">share</span>
                </button>
                
                {/* Share Dropdown */}

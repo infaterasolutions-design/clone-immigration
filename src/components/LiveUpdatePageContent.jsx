@@ -127,7 +127,7 @@ const LiveUpdateCard = ({ update, pageUrl }) => {
                 }
               }}
               onBlur={() => setTimeout(() => setShowShareMenu(false), 200)}
-              className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-primary hover:shadow-md hover:border-primary/30 shadow-sm transition-all"
+              className="flex items-center justify-center gap-1.5 text-slate-500 hover:text-primary transition-all"
             >
               <span className="material-symbols-outlined text-[18px]">share</span>
             </button>
@@ -207,15 +207,15 @@ export default function LiveUpdatePageContent({ eventId, breadcrumbLabel, pageUr
     <div className="pt-4 md:pt-8 pb-24 min-h-screen flex justify-center px-3 md:px-4 lg:px-0">
       <main className="w-full max-w-[1298px] mx-auto px-0 md:px-4 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
         <aside className="hidden lg:flex flex-col items-end pt-[190px] pr-2 xl:pr-6">
-          <div className="sticky top-32 flex flex-col gap-4 opacity-50 cursor-not-allowed pointer-events-none">
-             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-slate-500 border border-slate-200">
-               <span className="material-symbols-outlined text-[20px]">thumb_up</span>
+          <div className="sticky top-32 flex flex-col gap-5 items-end opacity-50 cursor-not-allowed pointer-events-none">
+             <div className="flex items-center justify-center gap-1.5 text-slate-400">
+               <span className="material-symbols-outlined text-[22px]">thumb_up</span>
              </div>
-             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-slate-500 border border-slate-200">
-               <span className="material-symbols-outlined text-[20px]">bookmark</span>
+             <div className="flex items-center justify-center gap-1.5 text-slate-400">
+               <span className="material-symbols-outlined text-[22px]">bookmark</span>
              </div>
-             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-slate-500 border border-slate-200">
-               <span className="material-symbols-outlined text-[20px]">share</span>
+             <div className="flex items-center justify-center text-slate-400">
+               <span className="material-symbols-outlined text-[22px]">share</span>
              </div>
           </div>
         </aside>

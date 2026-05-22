@@ -1,0 +1,65 @@
+User-agent: *
+
+# Block admin and backend
+Disallow: /admin/
+Disallow: /admin
+Disallow: /dashboard/
+Disallow: /dashboard
+
+# Block API routes
+Disallow: /api/
+Disallow: /api
+
+# Block auth and account pages
+Disallow: /login/
+Disallow: /login
+Disallow: /logout/
+Disallow: /logout
+Disallow: /register/
+Disallow: /register
+Disallow: /signup/
+Disallow: /signup
+Disallow: /account/
+Disallow: /account
+
+# Block Next.js internal routes
+Disallow: /_next/
+Disallow: /_next
+Disallow: /_error
+Disallow: /404
+Disallow: /500
+
+# Block CMS and editor routes
+Disallow: /studio/
+Disallow: /studio
+Disallow: /editor/
+Disallow: /editor
+Disallow: /cms/
+Disallow: /cms
+
+# Block search and filter pages
+Disallow: /search?
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=
+Disallow: /*?*ref=
+Disallow: /*?*utm_
+
+# Block utility and system files
+Disallow: /cdn-cgi/
+Disallow: /.env
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Allow all public content
+Allow: /
+Allow: /sitemap.xml
+Allow: /sitemap-news.xml
+Allow: /sitemap-categories.xml
+Allow: /sitemap-posts.xml
+Allow: /sitemap-pages.xml
+Allow: /sitemap-locations.xml
+Allow: /sitemap-shorts.xml
+
+# Sitemap location
+Sitemap: https://www.unitedstatesimmigrationnews.com/sitemap.xml

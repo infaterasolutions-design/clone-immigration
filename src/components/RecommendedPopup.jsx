@@ -35,8 +35,9 @@ export default function RecommendedPopup() {
             <div className="w-[46px] h-full bg-slate-200 overflow-hidden flex-shrink-0 relative">
                <img src={article.main_image || "/images/logo.png"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="post" />
             </div>
-            <div className="flex-grow p-1.5 flex items-center justify-center bg-slate-900 group-hover:bg-primary transition-colors">
-               <h5 className="text-[9px] font-extrabold headline-font leading-tight line-clamp-2 text-white">{article.title}</h5>
+            <div className="flex-grow p-1.5 flex flex-col justify-center bg-white group-hover:bg-primary transition-colors">
+               <span className="text-[6.5px] font-bold text-primary group-hover:text-white/90 uppercase tracking-widest mb-0.5 leading-none">Recommended</span>
+               <h5 className="text-[9px] font-extrabold headline-font leading-tight line-clamp-2 text-slate-900 group-hover:text-white transition-colors">{article.title}</h5>
             </div>
          </Link>
       </div>

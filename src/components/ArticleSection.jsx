@@ -221,16 +221,32 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
     return () => observer.disconnect();
   }, [decodedContent, article.id]);
 
-  // Ensure all links inside article content open in a new tab
+  // Ensure external links open in new tab, and internal links open normally without losing referrer
   useEffect(() => {
     const articleEl = document.getElementById(`article-${article.id}`);
     if (!articleEl) return;
     const links = articleEl.querySelectorAll('.prose a[href]');
     links.forEach((link) => {
-      // Only set for links that don't already have an explicit target
-      if (!link.getAttribute('target')) {
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
+      const href = link.getAttribute('href');
+      if (!href) return;
+
+      // Check if the link is internal
+      const isInternal = href.startsWith('/') || href.startsWith('#') || href.startsWith(window.location.origin);
+
+      if (isInternal) {
+        // Strip target="_blank" and rel from internal links
+        if (link.getAttribute('target') === '_blank') {
+          link.removeAttribute('target');
+        }
+        if (link.getAttribute('rel') === 'noopener noreferrer') {
+          link.removeAttribute('rel');
+        }
+      } else {
+        // Only set for external links that don't already have an explicit target
+        if (!link.getAttribute('target')) {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+        }
       }
     });
   });

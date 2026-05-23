@@ -120,7 +120,7 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
                 <button onClick={() => scrollTopStories('right')} className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
               </div>
             </div>
-            <div ref={topStoriesRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x -mx-3 px-3 md:mx-0 md:px-0">
+            <div ref={topStoriesRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x mt-2">
               {topStoryArticles.map((art) => (
                 <Link key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : (art.slug ? `/${art.slug}` : `/article/${art.id}`)} className="flex-shrink-0 w-[240px] md:w-[280px] snap-start group cursor-pointer block">
                   <div className="relative aspect-[16/10] w-full overflow-hidden mb-3 rounded-md">

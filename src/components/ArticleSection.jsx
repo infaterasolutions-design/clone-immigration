@@ -646,7 +646,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                     <button onClick={() => scrollSlider('right')} className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600 rounded"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
                   </div>
                 </div>
-                <div ref={sliderRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x -mx-3 px-3 md:mx-0 md:px-0">
+                <div ref={sliderRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x mt-2">
                   {readMoreArticles.map((art) => (
                     <Link key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : (art.slug ? `/${art.slug}` : `/article/${art.id}`)} className="flex-shrink-0 w-[180px] md:w-[200px] snap-start group cursor-pointer block">
                       <div className="relative aspect-[16/10] w-full overflow-hidden mb-3 rounded-md">
@@ -667,27 +667,27 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
 
             {/* Sponsored Section (Mathematically aligned to grid) */}
             {isExpanded && sponsoredContent.length > 0 && (
-              <div className="w-auto -ml-4 -mr-4 pl-4 pr-4 md:-ml-8 md:-mr-8 md:pl-8 md:pr-8 lg:-ml-[calc((100%+3rem)/7+2rem)] lg:pl-[calc((100%+3rem)/7+2rem)] lg:-mr-[calc((100%+3rem)/7*4+2rem)] lg:pr-0 bg-transparent md:bg-[#F9FAFB] py-8 mt-6 mb-8 border-y border-slate-100 md:border-y-slate-100 relative z-20">
+              <div className="w-auto md:-ml-8 md:-mr-8 md:pl-8 md:pr-8 lg:-ml-[calc((100%+3rem)/7+2rem)] lg:pl-[calc((100%+3rem)/7+2rem)] lg:-mr-[calc((100%+3rem)/7*4+2rem)] lg:pr-0 bg-transparent md:bg-[#F9FAFB] py-4 md:py-8 mt-6 mb-8 border-y border-transparent md:border-slate-100 relative z-20 overflow-hidden md:overflow-visible">
                 <div className="lg:pr-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg md:text-xl font-bold text-slate-800">Sponsored Content</h2>
+                  <div className="flex items-center justify-between mb-4 md:mb-4">
+                    <h2 className="text-lg md:text-xl font-extrabold headline-font border-l-4 border-primary pl-3 md:pl-4 uppercase tracking-tight text-slate-900">Sponsored Content</h2>
                   </div>
-                  <div className="border border-slate-200 p-4 md:p-6 bg-white shadow-sm">
+                  <div className="border-none md:border md:border-slate-200 md:p-6 bg-transparent md:bg-white shadow-none md:shadow-sm">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8">
                       {sponsoredContent.map((item, i) => (
                         <a key={item.id || i} href={item.destination_url} target="_blank" rel="noopener noreferrer" className="flex items-start justify-between gap-4 group cursor-pointer">
                           <div className="flex-1 pr-2">
-                            <h4 className="text-[13px] md:text-sm font-bold text-slate-800 leading-snug group-hover:underline mb-1.5 line-clamp-3">
+                            <h4 className="text-base md:text-[15px] font-bold headline-font text-slate-900 group-hover:text-primary transition-colors mb-1 md:mb-2 line-clamp-2 md:line-clamp-3">
                               {item.title}
                             </h4>
                             {item.description && (
                               <p className="text-[11px] md:text-xs text-slate-500 mb-2 line-clamp-2">{item.description}</p>
                             )}
-                            <p className="text-[10px] md:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                            <p className="text-[10px] md:text-[11px] font-light text-black tracking-wide">
                               {item.sponsor_name}
                             </p>
                           </div>
-                          <div className="w-[70px] h-[70px] md:w-[80px] md:h-[80px] flex-shrink-0 bg-slate-100 border border-slate-100 overflow-hidden relative">
+                          <div className="w-[100px] h-[70px] md:w-[80px] md:h-[80px] flex-shrink-0 bg-slate-100 border border-slate-100 overflow-hidden relative rounded-md">
                             {item.image_url ? (
                               <img src={item.image_url} alt={item.title} className="w-full h-full object-cover opacity-90 group-hover:scale-105 group-hover:opacity-100 transition-all duration-300" />
                             ) : (

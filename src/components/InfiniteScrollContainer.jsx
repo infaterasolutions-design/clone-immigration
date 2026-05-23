@@ -108,6 +108,26 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
     };
   }, [articles]); // Removed visibleArticle from dependencies
 
+  const scrollToNextArticle = () => {
+    const currentIndex = articles.findIndex((a) => a.id === visibleArticle);
+    const isNextAvailable = currentIndex >= 0 && currentIndex < articles.length - 1;
+    
+    if (isNextAvailable) {
+      const nextArticle = articles[currentIndex + 1];
+      const el = document.getElementById(`article-${nextArticle.id}`);
+      if (el) {
+        const yOffset = -20;
+        const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    } else if (hasMore && loaderRef.current) {
+      loaderRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const currentIndex = articles.findIndex((a) => a.id === visibleArticle);
+  const isNextDisabled = currentIndex === articles.length - 1 && !hasMore;
+
   return (
     <>
       <div className="pt-4 md:pt-8 pb-0 px-3 md:px-4 lg:px-24 max-w-[1298px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 relative">
@@ -163,13 +183,14 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
             </div>
             <div className="h-8 w-px bg-slate-200"></div>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 whitespace-nowrap">Article {articles.findIndex((a) => a.id === visibleArticle) + 1} of {hasMore ? "4" : articles.length}</span>
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 whitespace-nowrap">Article {currentIndex >= 0 ? currentIndex + 1 : 1} of {hasMore ? "4" : articles.length}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
              <button 
-               className="px-3 sm:px-6 py-1.5 sm:py-2 bg-primary text-on-primary rounded-full text-[10px] sm:text-xs font-bold hover:scale-105 transition-transform opacity-50 cursor-not-allowed"
-               disabled
+               onClick={scrollToNextArticle}
+               disabled={isNextDisabled}
+               className={`px-3 sm:px-6 py-1.5 sm:py-2 bg-primary text-on-primary rounded-full text-[10px] sm:text-xs font-bold hover:scale-105 transition-all ${isNextDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer shadow-sm hover:shadow-md'}`}
              >
                Next Story
              </button>

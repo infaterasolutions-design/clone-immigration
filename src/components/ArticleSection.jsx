@@ -677,7 +677,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                       {sponsoredContent.map((item, i) => (
                         <a key={item.id || i} href={item.destination_url} target="_blank" rel="noopener noreferrer" className="flex items-start justify-between gap-4 group cursor-pointer">
                           <div className="flex-1 pr-2">
-                            <h4 className="text-base md:text-[15px] font-bold headline-font text-slate-900 group-hover:text-primary transition-colors mb-1 md:mb-2 line-clamp-2 md:line-clamp-3">
+                            <h4 className="text-base md:text-[15px] font-bold headline-font text-slate-900 group-hover:text-primary transition-colors mb-1 md:mb-2 line-clamp-3">
                               {item.title}
                             </h4>
                             {item.description && (
@@ -687,7 +687,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                               {item.sponsor_name}
                             </p>
                           </div>
-                          <div className="w-[100px] h-[70px] md:w-[80px] md:h-[80px] flex-shrink-0 bg-slate-100 border border-slate-100 overflow-hidden relative rounded-md">
+                          <div className="w-[110px] h-[75px] md:w-[80px] md:h-[80px] flex-shrink-0 bg-slate-100 border border-slate-100 overflow-hidden relative rounded-md">
                             {item.image_url ? (
                               <img src={item.image_url} alt={item.title} className="w-full h-full object-cover opacity-90 group-hover:scale-105 group-hover:opacity-100 transition-all duration-300" />
                             ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SidebarWidgets from "./SidebarWidgets";
@@ -8,13 +8,31 @@ import RelatedArticles from "./RelatedArticles";
 import { recordInteraction } from "@/app/actions/interactions";
 
 import Breadcrumb from "./Breadcrumb";
+import { fetchReadMoreArticles } from "@/app/actions/article";
 
 const FALLBACK_IMAGE = "/images/logo.png";
 
-export default function ArticleSection({ article, isFirst = false, customWidgets = { mid: [], end: [] } }) {
+export default function ArticleSection({ article, isFirst = false, customWidgets = { mid: [], end: [] }, sponsoredContent = [] }) {
   const midArticles = customWidgets.mid || [];
   const endArticles = customWidgets.end || [];
   const [isExpanded, setIsExpanded] = useState(false);
+  const [readMoreArticles, setReadMoreArticles] = useState([]);
+  const sliderRef = useRef(null);
+
+  const scrollSlider = (direction) => {
+    if (sliderRef.current) {
+      const scrollAmount = 300;
+      sliderRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    async function loadReadMore() {
+      const articles = await fetchReadMoreArticles(article.id);
+      setReadMoreArticles(articles);
+    }
+    loadReadMore();
+  }, [article.id]);
 
   // Independent interaction states
   const [leftIsLiked, setLeftIsLiked] = useState(false);
@@ -223,8 +241,8 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
     <div id={`article-${article.id}`} className="article-wrapper" data-article-id={article.id} data-article-slug={article.cluster_slug ? `${article.cluster_slug}/${article.slug}` : article.slug}>
       <article className={`grid grid-cols-1 lg:grid-cols-8 gap-8 md:gap-12 relative ${!isFirst ? 'mt-4 md:mt-6 pt-4 border-t-2 border-slate-100' : ''}`}>
         {/* Floating Social Interaction Bar (Desktop) */}
-        <aside className="hidden lg:flex flex-col items-end pt-[190px] pr-2 xl:pr-6 lg:col-span-1">
-          <div className="sticky top-32 flex flex-col gap-5 items-end">
+        <aside className="hidden lg:flex flex-col items-end pt-[190px] pr-2 xl:pr-6 lg:col-span-1 relative z-30">
+          <div className="sticky top-32 flex flex-col gap-5 items-end z-30">
              <button
                onClick={() => handleInteraction("left", "like")}
                className={`flex items-center justify-center gap-1.5 transition-all ${
@@ -492,10 +510,10 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
 
           {/* Rich Text Content */}
           <div className={
-            `relative overflow-hidden transition-[max-height] duration-[1500ms] ease-in-out ` +
-            (isExpanded ? 'max-h-[50000px]' : 'max-h-[250px] md:max-h-[400px]')
+            `relative transition-[max-height] duration-[1500ms] ease-in-out ` +
+            (isExpanded ? 'max-h-[50000px] overflow-visible' : 'max-h-[250px] md:max-h-[400px] overflow-hidden')
           }>
-            <div className={`prose prose-lg max-w-none font-body pb-8 md:pb-12 lg:pb-12 text-slate-800 mt-4`}>
+            <div className={`prose prose-lg max-w-none font-body pb-2 text-slate-800 mt-4`}>
               
               {decodedContent ? (
                  (() => {
@@ -597,7 +615,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
 
             {/* Related Topics / Tags */}
             {article.tags && article.tags.length > 0 && (
-              <div className={`mt-8 mb-4 flex flex-col gap-3 pt-6 border-t border-slate-100 ${!isExpanded ? 'hidden' : 'flex'}`}>
+              <div className={`mt-4 mb-2 flex flex-col gap-3 pt-4 border-t border-slate-100 ${!isExpanded ? 'hidden' : 'flex'}`}>
                 <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   <span className="material-symbols-outlined text-[18px] text-primary">sell</span>
                   Related Topics
@@ -617,6 +635,74 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                 </div>
               </div>
             )}
+
+            {/* Read More Slider (Like Top Stories) */}
+            {readMoreArticles.length > 0 && isExpanded && (
+              <section className="py-6 mt-8 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                  <h2 className="text-lg md:text-xl font-extrabold headline-font border-l-4 border-primary pl-3 md:pl-4 uppercase tracking-tight text-slate-900">Read More</h2>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => scrollSlider('left')} className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600 rounded"><span className="material-symbols-outlined text-sm">chevron_left</span></button>
+                    <button onClick={() => scrollSlider('right')} className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600 rounded"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
+                  </div>
+                </div>
+                <div ref={sliderRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x -mx-3 px-3 md:mx-0 md:px-0">
+                  {readMoreArticles.map((art) => (
+                    <Link key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : (art.slug ? `/${art.slug}` : `/article/${art.id}`)} className="flex-shrink-0 w-[180px] md:w-[200px] snap-start group cursor-pointer block">
+                      <div className="relative aspect-[16/10] w-full overflow-hidden mb-3 rounded-md">
+                        <Image width={300} height={200} quality={40} loading="lazy" decoding="async" sizes="280px" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={art.mainImage || FALLBACK_IMAGE} alt={art.title} />
+                        <div className="absolute top-2 left-2 bg-primary px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-tighter rounded-sm">{art.categoryLabel}</div>
+                      </div>
+                      <h4 className="font-bold text-sm leading-snug group-hover:text-primary transition-colors mb-2 line-clamp-2 text-slate-900">{art.title}</h4>
+                      <div className="flex items-center gap-3 text-[10px] text-slate-500 font-medium">
+                        <span>{art.readTime}</span>
+                        <span>•</span>
+                        <span>{art.date}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Sponsored Section (Mathematically aligned to grid) */}
+            {isExpanded && sponsoredContent.length > 0 && (
+              <div className="w-auto -ml-4 -mr-4 pl-4 pr-4 md:-ml-8 md:-mr-8 md:pl-8 md:pr-8 lg:-ml-[calc((100%+3rem)/7+2rem)] lg:pl-[calc((100%+3rem)/7+2rem)] lg:-mr-[calc((100%+3rem)/7*4+2rem)] lg:pr-0 bg-[#F9FAFB] py-8 mt-6 mb-8 border-y border-slate-100 relative z-20">
+                <div className="lg:pr-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg md:text-xl font-bold text-slate-800">Sponsored Content</h2>
+                  </div>
+                  <div className="border border-slate-200 p-4 md:p-6 bg-white shadow-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8">
+                      {sponsoredContent.map((item, i) => (
+                        <a key={item.id || i} href={item.destination_url} target="_blank" rel="noopener noreferrer" className="flex items-start justify-between gap-4 group cursor-pointer">
+                          <div className="flex-1 pr-2">
+                            <h4 className="text-[13px] md:text-sm font-bold text-slate-800 leading-snug group-hover:underline mb-1.5 line-clamp-3">
+                              {item.title}
+                            </h4>
+                            {item.description && (
+                              <p className="text-[11px] md:text-xs text-slate-500 mb-2 line-clamp-2">{item.description}</p>
+                            )}
+                            <p className="text-[10px] md:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                              {item.sponsor_name}
+                            </p>
+                          </div>
+                          <div className="w-[70px] h-[70px] md:w-[80px] md:h-[80px] flex-shrink-0 bg-slate-100 border border-slate-100 overflow-hidden relative">
+                            {item.image_url ? (
+                              <img src={item.image_url} alt={item.title} className="w-full h-full object-cover opacity-90 group-hover:scale-105 group-hover:opacity-100 transition-all duration-300" />
+                            ) : (
+                              <img src="/images/logo.png" alt="Sponsored" className="w-full h-full object-contain p-2 opacity-50 grayscale mix-blend-multiply group-hover:scale-105 group-hover:grayscale-0 transition-all duration-300" />
+                            )}
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+
 
             {/* End of article recommendation widget has been moved to the rich text parsing logic */}
             

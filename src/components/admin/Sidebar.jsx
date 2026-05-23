@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { name: 'Locations', path: '/admin/locations', icon: '📍', roles: ['super_admin', 'editor'], section: 'Content' },
   { name: 'Clusters', path: '/admin/clusters', icon: '🏷️', roles: ['super_admin', 'editor'], section: 'Content' },
   { name: 'Live Updates', path: '/admin/live-updates', icon: '🔴', roles: ['super_admin', 'editor', 'viewer'], section: 'Content' },
+  { name: 'Sponsored Content', path: '/admin/sponsored-content', icon: '📢', roles: ['super_admin', 'editor'], section: 'Content' },
   { name: 'Media Library', path: '/admin/media', icon: '🎬', roles: ['super_admin', 'editor', 'viewer'], section: 'Content' },
   { name: 'Subscribers', path: '/admin/subscribers', icon: '📧', roles: ['super_admin', 'editor'], section: 'Audience' },
   { name: 'Homepage Layout', path: '/admin/layout', icon: '📑', roles: ['super_admin', 'editor'], section: 'Settings' },

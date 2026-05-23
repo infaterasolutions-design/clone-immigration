@@ -121,3 +121,23 @@ export async function fetchArticleInitialDataBySlug(slug) {
   
   return resolveArticle(data);
 }
+
+export async function fetchReadMoreArticles(currentArticleId) {
+  const { data } = await supabase.from('articles')
+    .select(ARTICLE_SELECT)
+    .eq('status', 'published')
+    .neq('id', currentArticleId)
+    .order('published_at', { ascending: false })
+    .limit(6);
+    
+  if (!data) return [];
+  
+  const formatted = await Promise.all(data.map(async (art) => {
+    let locationData = art.location;
+    if (locationData && locationData.parent_id) {
+       locationData = await fetchLocationParent(locationData);
+    }
+    return mapDbToFrontend({ ...art, location: locationData });
+  }));
+  return formatted;
+}

@@ -6,6 +6,7 @@ import { getSidebarData } from "@/app/actions/sidebar";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getLocationBySlug, getArticlesByLocationId } from "@/app/actions/locationActions";
+import { getActiveSponsoredContent } from "@/app/actions/sponsoredActions";
 import CityLocationPage from "@/components/CityLocationPage";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.unitedstatesimmigrationnews.com").replace(/\/+$/, "");
@@ -156,9 +157,10 @@ export default async function SubcategoryPage({ params }) {
   }
 
   // 2. Not a category? Check if it's a clustered article URL (slug = cluster, sub = article slug)
-  const [article, sidebarData] = await Promise.all([
+  const [article, sidebarData, { data: sponsoredContent }] = await Promise.all([
     fetchArticleInitialDataBySlug(sub),
     getSidebarData(),
+    getActiveSponsoredContent(),
   ]);
 
   const now = new Date();
@@ -243,6 +245,6 @@ export default async function SubcategoryPage({ params }) {
   };
 
   return (
-    <InfiniteScrollContainer initialArticle={article} sidebarData={sidebarData} nextArticle={nextArticle} customWidgets={customWidgets} />
+    <InfiniteScrollContainer initialArticle={article} sidebarData={sidebarData} nextArticle={nextArticle} customWidgets={customWidgets} sponsoredContent={sponsoredContent || []} />
   );
 }

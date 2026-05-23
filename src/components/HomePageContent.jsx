@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { useRef } from "react";
 
 import LiveTickerSlider from "@/components/LiveTickerSlider";
 import NewsletterWidget from "@/components/NewsletterWidget";
@@ -14,6 +17,14 @@ const FloatingShareButton = dynamic(() => import("@/components/FloatingShareButt
 const FALLBACK_IMAGE = "/images/logo.png";
 
 export default function HomePageContent({ articles = [], tickerItems = [], videoArticles = [], layout = null }) {
+  const topStoriesRef = useRef(null);
+
+  const scrollTopStories = (direction) => {
+    if (topStoriesRef.current) {
+      const scrollAmount = 300;
+      topStoriesRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
   // Helper to find article by ID
   const findById = (id) => id ? articles.find(a => a.id === id) : null;
 
@@ -105,11 +116,11 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-lg md:text-xl font-extrabold headline-font border-l-4 border-primary pl-3 md:pl-4 uppercase tracking-tight text-slate-900">Top Stories</h2>
               <div className="flex items-center gap-2">
-                <button className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600"><span className="material-symbols-outlined text-sm">chevron_left</span></button>
-                <button className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
+                <button onClick={() => scrollTopStories('left')} className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600"><span className="material-symbols-outlined text-sm">chevron_left</span></button>
+                <button onClick={() => scrollTopStories('right')} className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
               </div>
             </div>
-            <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x -mx-3 px-3 md:mx-0 md:px-0">
+            <div ref={topStoriesRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x -mx-3 px-3 md:mx-0 md:px-0">
               {topStoryArticles.map((art) => (
                 <Link key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : (art.slug ? `/${art.slug}` : `/article/${art.id}`)} className="flex-shrink-0 w-[240px] md:w-[280px] snap-start group cursor-pointer block">
                   <div className="relative aspect-[16/10] w-full overflow-hidden mb-3 rounded-md">

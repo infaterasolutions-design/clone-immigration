@@ -10,7 +10,10 @@ export default function AdminArticles() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
-  const [filter, setFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [authorFilter, setAuthorFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortFilter, setSortFilter] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
   const user = typeof window !== "undefined" ? window.__adminUser : null;
 
@@ -19,15 +22,14 @@ export default function AdminArticles() {
 
   useEffect(() => { fetchArticles(); }, []);
 
-  // Reset page to 1 when filter or search changes
-  useEffect(() => { setCurrentPage(1); }, [filter, searchQuery]);
+  // Reset page to 1 when any filter or search changes
+  useEffect(() => { setCurrentPage(1); }, [statusFilter, authorFilter, categoryFilter, sortFilter, searchQuery]);
 
   async function fetchArticles() {
     setLoading(true);
     let { data, error } = await supabase.from("articles").select("*").order("published_at", { ascending: false, nullsFirst: false });
     if (error) {
       console.error("Error fetching articles:", error);
-      // Fallback if sorting fails
       const fallback = await supabase.from("articles").select("*");
       data = fallback.data;
     }
@@ -72,12 +74,25 @@ export default function AdminArticles() {
       result = result.filter(a => a.title?.toLowerCase().includes(q) || a.author_name?.toLowerCase().includes(q));
     }
 
-    if (filter === "featured") result = result.filter(a => a.is_featured);
-    else if (filter !== "all" && !filter.startsWith("sort_")) result = result.filter(a => a.category_label === filter);
+    // Status / Featured
+    if (statusFilter === "featured") result = result.filter(a => a.is_featured);
+    else if (statusFilter === "scheduled") result = result.filter(a => a.status === "published" && a.published_at && new Date(a.published_at) > new Date());
+    else if (statusFilter === "published") result = result.filter(a => a.status === "published" && (!a.published_at || new Date(a.published_at) <= new Date()));
+    else if (statusFilter !== "all") result = result.filter(a => a.status === statusFilter);
 
-    if (filter === "sort_likes") result = [...result].sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
-    if (filter === "sort_saves") result = [...result].sort((a, b) => (b.saves_count || 0) - (a.saves_count || 0));
-    if (filter === "sort_shares") result = [...result].sort((a, b) => (b.shares_count || 0) - (a.shares_count || 0));
+    // Author
+    if (authorFilter !== "all") result = result.filter(a => a.author_name === authorFilter);
+
+    // Category
+    if (categoryFilter !== "all") result = result.filter(a => a.category_label === categoryFilter);
+
+    // Sorting
+    result = [...result]; // Prevent mutating original array
+    if (sortFilter === "likes") result.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+    else if (sortFilter === "saves") result.sort((a, b) => (b.saves_count || 0) - (a.saves_count || 0));
+    else if (sortFilter === "shares") result.sort((a, b) => (b.shares_count || 0) - (a.shares_count || 0));
+    else if (sortFilter === "oldest") result.sort((a, b) => new Date(a.published_at || 0) - new Date(b.published_at || 0));
+    else if (sortFilter === "newest") result.sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
     
     return result;
   })();
@@ -86,6 +101,7 @@ export default function AdminArticles() {
   const paginatedData = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const categories = [...new Set(articles.map(a => a.category_label).filter(Boolean))];
+  const authors = [...new Set(articles.map(a => a.author_name).filter(Boolean))];
 
   const columns = [
     { key: "title", label: "Title", render: (row) => (
@@ -131,7 +147,7 @@ export default function AdminArticles() {
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title">Articles</h1>
-          <p className="admin-page-subtitle">{articles.length} total · {articles.filter(a => a.is_featured).length} featured</p>
+          <p className="admin-page-subtitle">{filtered.length} matching articles out of {articles.length} total</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <input 
@@ -150,18 +166,45 @@ export default function AdminArticles() {
         </div>
       </div>
 
-      {/* Filter bar */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap", alignItems: "center" }}>
-        <button className={`admin-btn admin-btn-sm ${filter === "all" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("all")}>All ({articles.length})</button>
-        <button className={`admin-btn admin-btn-sm ${filter === "featured" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("featured")}>⭐ Featured</button>
-        <div style={{ width: 1, height: 20, backgroundColor: "#e2e8f0", margin: "0 4px" }} />
-        <button className={`admin-btn admin-btn-sm ${filter === "sort_likes" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("sort_likes")}>Most Liked</button>
-        <button className={`admin-btn admin-btn-sm ${filter === "sort_saves" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("sort_saves")}>Most Saved</button>
-        <button className={`admin-btn admin-btn-sm ${filter === "sort_shares" ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter("sort_shares")}>Most Shared</button>
-        <div style={{ width: 1, height: 20, backgroundColor: "#e2e8f0", margin: "0 4px" }} />
-        {categories.map(cat => (
-          <button key={cat} className={`admin-btn admin-btn-sm ${filter === cat ? "admin-btn-primary" : "admin-btn-ghost"}`} onClick={() => setFilter(cat)}>{cat}</button>
-        ))}
+      {/* Advanced Dropdown Filters */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap", alignItems: "center" }}>
+        
+        <select className="admin-form-select" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem' }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="all">All Statuses</option>
+          <option value="published">Published</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="draft">Draft</option>
+          <option value="featured">Featured (⭐)</option>
+        </select>
+
+        <select className="admin-form-select" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem' }} value={authorFilter} onChange={e => setAuthorFilter(e.target.value)}>
+          <option value="all">All Authors</option>
+          {authors.map(author => <option key={author} value={author}>{author}</option>)}
+        </select>
+
+        <select className="admin-form-select" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem' }} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+          <option value="all">All Categories</option>
+          {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+        </select>
+
+        <select className="admin-form-select" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem' }} value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
+          <option value="newest">Sort: Newest First</option>
+          <option value="oldest">Sort: Oldest First</option>
+          <option value="likes">Sort: Most Liked</option>
+          <option value="saves">Sort: Most Saved</option>
+          <option value="shares">Sort: Most Shared</option>
+        </select>
+
+        {(statusFilter !== "all" || authorFilter !== "all" || categoryFilter !== "all" || sortFilter !== "newest" || searchQuery !== "") && (
+          <button 
+            className="admin-btn admin-btn-ghost admin-btn-sm" 
+            onClick={() => {
+              setStatusFilter("all"); setAuthorFilter("all"); setCategoryFilter("all"); setSortFilter("newest"); setSearchQuery("");
+            }}
+          >
+            Clear Filters
+          </button>
+        )}
       </div>
 
       <DataTable

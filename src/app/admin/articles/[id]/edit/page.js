@@ -236,7 +236,7 @@ export default function EditArticle() {
               disabled={saving || !form.title}
               className="px-4 py-2 rounded-md text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
             >
-              🚀 Update Post
+              {form.status === 'draft' ? "🚀 Publish Post" : "🚀 Update Post"}
             </button>
           </div>
         </div>

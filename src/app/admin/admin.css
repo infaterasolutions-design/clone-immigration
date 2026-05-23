@@ -267,7 +267,7 @@
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .admin-table thead {
@@ -277,8 +277,8 @@
 
 .admin-table th {
   text-align: left;
-  padding: 14px 20px;
-  font-size: 0.7rem;
+  padding: 4px 8px;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #52525b;
   text-transform: uppercase;
@@ -287,7 +287,7 @@
 }
 
 .admin-table td {
-  padding: 14px 20px;
+  padding: 4px 8px;
   border-bottom: 1px solid #f1f5f9;
   color: #334155;
   vertical-align: middle;

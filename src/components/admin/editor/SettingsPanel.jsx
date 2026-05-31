@@ -193,7 +193,52 @@ export default function SettingsPanel({ form, handleChange, categories, clusters
             />
           </div>
 
-          {/* Location Selector */}
+          {/* Content Review & Freshness */}
+      <div>
+        <h3 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Content Review & Freshness</h3>
+        <div className="space-y-4 p-4 border border-slate-200 rounded-md bg-slate-50/50">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Last Reviewed Date</label>
+            <input 
+              type="date" 
+              name="last_reviewed_date" 
+              value={form.last_reviewed_date || ""} 
+              onChange={handleChange} 
+              className="w-full bg-white border border-slate-200 rounded p-2 text-sm text-slate-800 outline-none focus:border-indigo-500 shadow-sm"
+            />
+            <p className="text-[10px] text-slate-500 mt-1">Leave blank if the article has not been reviewed since publication.</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              id="show_review_notice"
+              name="show_review_notice" 
+              checked={form.show_review_notice ?? true} 
+              onChange={handleChange} 
+              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+            />
+            <label htmlFor="show_review_notice" className="text-xs font-bold text-slate-600 cursor-pointer">
+              Show Review Notice to Readers
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Custom Review Notice (Optional)</label>
+            <textarea 
+              name="review_notice_text" 
+              value={form.review_notice_text || ""} 
+              onChange={handleChange} 
+              disabled={!form.show_review_notice}
+              placeholder="Policies may have changed. Visit uscis.gov for the most current guidance."
+              className="w-full bg-white border border-slate-200 rounded p-2 text-sm text-slate-800 outline-none focus:border-indigo-500 shadow-sm disabled:bg-slate-100 disabled:text-slate-400"
+              rows={2}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Location (USCIS Field Offices, States) */}
           <LocationSelector
             locationId={form.location_id}
             onLocationChange={(id) => handleChange({ target: { name: "location_id", value: id } })}

@@ -13,6 +13,7 @@ export default function AdminArticles() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [authorFilter, setAuthorFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [reviewFilter, setReviewFilter] = useState("all");
   const [sortFilter, setSortFilter] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
   const user = typeof window !== "undefined" ? window.__adminUser : null;
@@ -23,7 +24,7 @@ export default function AdminArticles() {
   useEffect(() => { fetchArticles(); }, []);
 
   // Reset page to 1 when any filter or search changes
-  useEffect(() => { setCurrentPage(1); }, [statusFilter, authorFilter, categoryFilter, sortFilter, searchQuery]);
+  useEffect(() => { setCurrentPage(1); }, [statusFilter, authorFilter, categoryFilter, reviewFilter, sortFilter, searchQuery]);
 
   async function fetchArticles() {
     setLoading(true);
@@ -86,6 +87,21 @@ export default function AdminArticles() {
     // Category
     if (categoryFilter !== "all") result = result.filter(a => a.category_label === categoryFilter);
 
+    // Review Status
+    if (reviewFilter !== "all") {
+      const now = new Date();
+      result = result.filter(a => {
+        if (!a.last_reviewed_date && !a.published_at) return false;
+        const refDate = a.last_reviewed_date ? new Date(a.last_reviewed_date) : new Date(a.published_at);
+        const diffDays = (now - refDate) / (1000 * 60 * 60 * 24);
+        
+        if (reviewFilter === "needs_review") return diffDays >= 180;
+        if (reviewFilter === "recently_reviewed") return diffDays < 180;
+        if (reviewFilter === "overdue") return diffDays >= 365;
+        return true;
+      });
+    }
+
     // Sorting
     result = [...result]; // Prevent mutating original array
     if (sortFilter === "likes") result.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
@@ -115,6 +131,15 @@ export default function AdminArticles() {
     { key: "category_label", label: "Category", render: (row) => (
       <span className="admin-badge admin-badge-active">{row.category_label || "—"}</span>
     )},
+    { key: "review_status", label: "Review Status", render: (row) => {
+      if (!row.last_reviewed_date && !row.published_at) return <span style={{ color: "#94a3b8" }}>—</span>;
+      const refDate = row.last_reviewed_date ? new Date(row.last_reviewed_date) : new Date(row.published_at);
+      const diffDays = (new Date() - refDate) / (1000 * 60 * 60 * 24);
+      
+      if (diffDays >= 365) return <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "12px" }}>🚨 Overdue</span>;
+      if (diffDays >= 180) return <span style={{ color: "#f59e0b", fontWeight: "bold", fontSize: "12px" }}>⚠️ Due Soon</span>;
+      return <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "12px" }}>✅ Good</span>;
+    }},
     { key: "author_name", label: "Author" },
     { key: "status", label: "Status", render: (row) => {
       const isScheduled = row.status === "published" && row.published_at && new Date(row.published_at) > new Date();
@@ -187,6 +212,13 @@ export default function AdminArticles() {
           {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
         </select>
 
+        <select className="admin-form-select" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem' }} value={reviewFilter} onChange={e => setReviewFilter(e.target.value)}>
+          <option value="all">All Review Status</option>
+          <option value="recently_reviewed">✅ Recently Reviewed</option>
+          <option value="needs_review">⚠️ Needs Review</option>
+          <option value="overdue">🚨 Overdue</option>
+        </select>
+
         <select className="admin-form-select" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem' }} value={sortFilter} onChange={e => setSortFilter(e.target.value)}>
           <option value="newest">Sort: Newest First</option>
           <option value="oldest">Sort: Oldest First</option>
@@ -195,11 +227,11 @@ export default function AdminArticles() {
           <option value="shares">Sort: Most Shared</option>
         </select>
 
-        {(statusFilter !== "all" || authorFilter !== "all" || categoryFilter !== "all" || sortFilter !== "newest" || searchQuery !== "") && (
+        {(statusFilter !== "all" || authorFilter !== "all" || categoryFilter !== "all" || reviewFilter !== "all" || sortFilter !== "newest" || searchQuery !== "") && (
           <button 
             className="admin-btn admin-btn-ghost admin-btn-sm" 
             onClick={() => {
-              setStatusFilter("all"); setAuthorFilter("all"); setCategoryFilter("all"); setSortFilter("newest"); setSearchQuery("");
+              setStatusFilter("all"); setAuthorFilter("all"); setCategoryFilter("all"); setReviewFilter("all"); setSortFilter("newest"); setSearchQuery("");
             }}
           >
             Clear Filters

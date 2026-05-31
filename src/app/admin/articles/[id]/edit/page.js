@@ -39,6 +39,9 @@ export default function EditArticle() {
     is_indexed: true,
     location_id: null,
     custom_widgets: { mid: [], end: [] },
+    last_reviewed_date: "",
+    show_review_notice: true,
+    review_notice_text: "",
   });
 
   useEffect(() => {
@@ -98,9 +101,15 @@ export default function EditArticle() {
         localSchedule = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
       }
 
+      let localReviewDate = "";
+      if (articleData.last_reviewed_date) {
+        localReviewDate = new Date(articleData.last_reviewed_date).toISOString().split('T')[0];
+      }
+
       setForm({
         ...articleData,
         published_at_local: localSchedule,
+        last_reviewed_date: localReviewDate,
         // Pull the HTML out of the paragraphs array, or fallback to compiling the legacy fields
         content_html: isRichHtml ? articleData.paragraphs[0] : legacyHtml
       });
@@ -175,6 +184,12 @@ export default function EditArticle() {
       payload.published_at = new Date().toISOString();
     }
     delete payload.published_at_local;
+
+    if (payload.last_reviewed_date) {
+      payload.last_reviewed_date = new Date(payload.last_reviewed_date).toISOString();
+    } else {
+      payload.last_reviewed_date = null;
+    }
 
     const { error } = await supabase.from("articles").update(payload).eq("id", params.id);
     setSaving(false);

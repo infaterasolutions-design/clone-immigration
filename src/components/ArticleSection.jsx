@@ -538,6 +538,22 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
             )}
           </div>
 
+          {/* Last Reviewed Notice */}
+          {article.last_reviewed_date && article.show_review_notice && (
+            <div className="bg-slate-50 border-l-4 border-slate-300 p-3 my-4 text-[13px] md:text-sm text-slate-700 flex items-start gap-2.5 rounded-r-md">
+              <span className="material-symbols-outlined text-[18px] text-slate-500 mt-0.5">schedule</span>
+              <div className="leading-snug">
+                <strong className="font-bold text-slate-800">
+                  Last reviewed: {new Date(article.last_reviewed_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </strong>
+                <span className="mx-1.5 text-slate-400">—</span>
+                <span>
+                  {article.review_notice_text || "Policies may have changed. Visit uscis.gov for the most current guidance."}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Rich Text Content */}
           <div className={
             `relative transition-[max-height] duration-[1500ms] ease-in-out ` +

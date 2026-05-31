@@ -39,6 +39,9 @@ export default function NewArticle() {
     location_id: null,
     cluster_slug: "",
     custom_widgets: { mid: [], end: [] },
+    last_reviewed_date: "",
+    show_review_notice: true,
+    review_notice_text: "",
   });
 
   useEffect(() => {
@@ -133,6 +136,12 @@ export default function NewArticle() {
       payload.published_at = new Date().toISOString();
     }
     delete payload.published_at_local;
+
+    if (payload.last_reviewed_date) {
+      payload.last_reviewed_date = new Date(payload.last_reviewed_date).toISOString();
+    } else {
+      payload.last_reviewed_date = null;
+    }
 
     // Satisfy legacy required ID and Date properties for CSV-imported tables
     payload.id = Date.now().toString(); 

@@ -6,6 +6,7 @@ import { revalidateServerPath } from "../../../../../app/actions/revalidate";
 import TiptapEditor from "../../../../../components/admin/editor/TiptapEditor";
 import SEOPanel from "../../../../../components/admin/editor/SEOPanel";
 import SettingsPanel from "../../../../../components/admin/editor/SettingsPanel";
+import FAQPanel from "../../../../../components/admin/editor/FAQPanel";
 import RoleGuard from "../../../../../components/admin/RoleGuard";
 
 export default function EditArticle() {
@@ -17,6 +18,7 @@ export default function EditArticle() {
   const [categories, setCategories] = useState([]);
   const [clusters, setClusters] = useState([]);
   const [authors, setAuthors] = useState([]);
+  const [faqs, setFaqs] = useState([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -42,18 +44,21 @@ export default function EditArticle() {
     last_reviewed_date: "",
     show_review_notice: true,
     review_notice_text: "",
+    show_faq_section: true,
   });
 
   useEffect(() => {
     async function fetchData() {
-      const [{ data: catData }, { data: clustersData }, { data: authorsData }, { data: articleData, error }] = await Promise.all([
+      const [{ data: catData }, { data: clustersData }, { data: authorsData }, { data: articleData, error }, { data: faqsData }] = await Promise.all([
         supabase.from("categories").select("*"),
         supabase.from("clusters").select("*").order("name", { ascending: true }),
         supabase.from("authors").select("*").order("name", { ascending: true }),
-        supabase.from("articles").select("*").eq("id", params.id).single()
+        supabase.from("articles").select("*").eq("id", params.id).single(),
+        supabase.from("article_faqs").select("*").eq("article_id", params.id).order("display_order", { ascending: true })
       ]);
 
       if (authorsData) setAuthors(authorsData);
+      if (faqsData) setFaqs(faqsData);
       
       if (catData) {
         const rows = catData || [];
@@ -192,22 +197,44 @@ export default function EditArticle() {
     }
 
     const { error } = await supabase.from("articles").update(payload).eq("id", params.id);
+    
+    if (error) {
+      setSaving(false);
+      alert("Failed to update: " + error.message);
+      return;
+    }
+
+    // Sync FAQs
+    await supabase.from("article_faqs").delete().eq("article_id", params.id);
+    
+    if (faqs.length > 0) {
+      const faqPayload = faqs.map((faq) => ({
+        article_id: params.id,
+        question: faq.question,
+        answer: faq.answer,
+        display_order: faq.display_order,
+      }));
+      const { error: faqError } = await supabase.from("article_faqs").insert(faqPayload);
+      if (faqError) {
+        console.error("Failed to update FAQs:", faqError);
+      }
+    }
+
     setSaving(false);
 
-    if (error) {
-      alert("Failed to update: " + error.message);
-    } else {
-      // Clear cache for homepage, specific article page, and category page
-      await revalidateServerPath("/", "layout");
-      if (payload.slug) {
-        await revalidateServerPath(`/${payload.slug}`, "page");
-      }
-      if (payload.category_slug) {
-        await revalidateServerPath(`/category/${payload.category_slug}`, "page");
-      }
-
-      router.push(`/admin/articles`);
+    // Clear cache for homepage, specific article page, and category page
+    await revalidateServerPath("/", "layout");
+    if (payload.slug) {
+      await revalidateServerPath(`/${payload.slug}`, "page");
     }
+    if (payload.cluster_slug && payload.slug) {
+      await revalidateServerPath(`/${payload.cluster_slug}/${payload.slug}`, "page");
+    }
+    if (payload.category_slug) {
+      await revalidateServerPath(`/category/${payload.category_slug}`, "page");
+    }
+
+    router.push(`/admin/articles`);
   };
 
   if (loading) return <div className="text-slate-500 py-10 text-center">Loading editor...</div>;
@@ -264,9 +291,9 @@ export default function EditArticle() {
         <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-6 pb-6">
           
           {/* Main Editor Area (Left) */}
-          <div className="lg:col-span-8 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4">
+          <div className="lg:col-span-8 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4 pb-12">
             
-            <div className="bg-white p-8 border border-slate-200 rounded-lg shadow-sm">
+            <div className="bg-white p-8 border border-slate-200 rounded-lg shadow-sm flex-shrink-0">
               <input 
                 type="text" 
                 name="title" 
@@ -290,6 +317,9 @@ export default function EditArticle() {
                 onChange={(html) => setForm(prev => ({ ...prev, content_html: html }))} 
               />
             </div>
+            {form.show_faq_section && (
+              <FAQPanel faqs={faqs} setFaqs={setFaqs} />
+            )}
           </div>
 
           {/* Settings Sidebar (Right) */}

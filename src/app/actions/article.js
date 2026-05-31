@@ -2,8 +2,7 @@
 
 import { supabase } from "@/lib/supabase";
 import { getClusterDisplayName } from "@/lib/clusterHelpers";
-// Simple join — only fetch the direct location (no nested self-join which Supabase doesn't support)
-const ARTICLE_SELECT = '*, location:locations!location_id(id, name, slug, parent_id)';
+const ARTICLE_SELECT = '*, location:locations!location_id(id, name, slug, parent_id), faqs:article_faqs(id, question, answer, display_order)';
 
 /**
  * Fetch the parent location for a given location object.
@@ -65,6 +64,7 @@ function mapDbToFrontend(article) {
     paragraphs: isRichHtml ? null : article.paragraphs,
     contentHtml: isRichHtml ? article.paragraphs[0] : null,
     location: locationData,
+    faqs: article.faqs ? [...article.faqs].sort((a, b) => a.display_order - b.display_order) : [],
   };
 }
 

@@ -6,6 +6,7 @@ import { revalidateServerPath } from "../../../../app/actions/revalidate";
 import TiptapEditor from "../../../../components/admin/editor/TiptapEditor";
 import SEOPanel from "../../../../components/admin/editor/SEOPanel";
 import SettingsPanel from "../../../../components/admin/editor/SettingsPanel";
+import FAQPanel from "../../../../components/admin/editor/FAQPanel";
 import RoleGuard from "../../../../components/admin/RoleGuard";
 
 export default function NewArticle() {
@@ -15,6 +16,7 @@ export default function NewArticle() {
   const [categories, setCategories] = useState([]);
   const [clusters, setClusters] = useState([]);
   const [authors, setAuthors] = useState([]);
+  const [faqs, setFaqs] = useState([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -42,6 +44,7 @@ export default function NewArticle() {
     last_reviewed_date: "",
     show_review_notice: true,
     review_notice_text: "",
+    show_faq_section: true,
   });
 
   useEffect(() => {
@@ -148,19 +151,42 @@ export default function NewArticle() {
     payload.date = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
     const { data, error } = await supabase.from("articles").insert([payload]).select().single();
-    setLoading(false);
 
     if (error) {
+      setLoading(false);
       alert("Failed to save: " + error.message);
-    } else {
-      // Clear the cache for the homepage and potentially category pages
-      await revalidateServerPath("/", "layout");
-      if (payload.category_slug) {
-        await revalidateServerPath(`/category/${payload.category_slug}`, "page");
-      }
-      
-      router.push(`/admin/articles`);
+      return;
     }
+
+    // Save FAQs if present
+    if (faqs.length > 0) {
+      const faqPayload = faqs.map((faq) => ({
+        article_id: data.id,
+        question: faq.question,
+        answer: faq.answer,
+        display_order: faq.display_order,
+      }));
+      const { error: faqError } = await supabase.from("article_faqs").insert(faqPayload);
+      if (faqError) {
+        console.error("Failed to save FAQs:", faqError);
+      }
+    }
+
+    setLoading(false);
+
+    // Clear the cache for the homepage and potentially category pages
+    await revalidateServerPath("/", "layout");
+    if (payload.slug) {
+      await revalidateServerPath(`/${payload.slug}`, "page");
+    }
+    if (payload.cluster_slug && payload.slug) {
+      await revalidateServerPath(`/${payload.cluster_slug}/${payload.slug}`, "page");
+    }
+    if (payload.category_slug) {
+      await revalidateServerPath(`/category/${payload.category_slug}`, "page");
+    }
+    
+    router.push(`/admin/articles`);
   };
 
   return (
@@ -201,9 +227,9 @@ export default function NewArticle() {
         <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-6 pb-6">
           
           {/* Main Editor Area (Left) */}
-          <div className="lg:col-span-8 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4">
+          <div className="lg:col-span-8 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4 pb-12">
             
-            <div className="bg-white p-8 border border-slate-200 rounded-lg shadow-sm">
+            <div className="bg-white p-8 border border-slate-200 rounded-lg shadow-sm flex-shrink-0">
               <input 
                 type="text" 
                 name="title" 
@@ -227,6 +253,9 @@ export default function NewArticle() {
                 onChange={(html) => setForm(prev => ({ ...prev, content_html: html }))} 
               />
             </div>
+            {form.show_faq_section && (
+              <FAQPanel faqs={faqs} setFaqs={setFaqs} />
+            )}
           </div>
 
           {/* Settings Sidebar (Right) */}

@@ -9,6 +9,7 @@ import { recordInteraction } from "@/app/actions/interactions";
 
 import Breadcrumb from "./Breadcrumb";
 import { fetchReadMoreArticles } from "@/app/actions/article";
+import FAQAccordion from "./FAQAccordion";
 
 const FALLBACK_IMAGE = "/images/logo.png";
 
@@ -690,6 +691,14 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
               </div>
             )}
 
+
+            {/* FAQ Section */}
+            {isExpanded && article.show_faq_section !== false && article.faqs && article.faqs.length > 0 && (
+              <div className="mt-8 mb-4">
+                <FAQAccordion faqs={article.faqs} />
+              </div>
+            )}
+
             {/* Author Profile Card */}
             {article.authorDetails && isExpanded && (
               <div className="bg-white border border-slate-200 p-6 md:p-8 mt-10 mb-6 rounded-md shadow-sm">
@@ -805,12 +814,14 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
             }>
               <button 
                 onClick={() => setIsExpanded(true)}
-                className="px-8 py-3 bg-primary text-white font-bold tracking-widest uppercase text-sm shadow-xl rounded-full hover:scale-105 transition-transform outline-none"
+                className="bg-primary hover:bg-blue-800 text-white font-bold font-headline py-3 px-8 rounded-full shadow-lg transition-transform transform hover:-translate-y-1 hover:shadow-xl flex items-center gap-2 tracking-wide uppercase text-sm"
               >
                 Keep Reading
+                <span className="material-symbols-outlined text-[18px]">expand_more</span>
               </button>
             </div>
           </div>
+
 
           {/* Next Article Separator */}
           <div className="mt-6 mb-2 w-full relative flex items-center justify-center border-t-2 border-dashed border-outline-variant/30">

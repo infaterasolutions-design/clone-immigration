@@ -55,7 +55,7 @@ function detectPlatformFromUrl(url) {
   }
 }
 
-export default function TiptapEditor({ content, onChange }) {
+export default function TiptapEditor({ content, onChange, minHeightClass = "min-h-[500px]" }) {
   const [isUploading, setIsUploading] = useState(false);
   const [showEmbedModal, setShowEmbedModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -142,7 +142,7 @@ export default function TiptapEditor({ content, onChange }) {
     },
     editorProps: {
       attributes: {
-        class: "prose prose-lg prose-slate max-w-none focus:outline-none min-h-[500px]",
+        class: `prose prose-lg prose-slate max-w-none focus:outline-none ${minHeightClass}`,
       },
       transformPastedHTML(html) {
         if (typeof window === 'undefined' || !html) return html;
@@ -348,7 +348,7 @@ export default function TiptapEditor({ content, onChange }) {
   if (!editor) return null;
 
   return (
-    <div className="tiptap-container rounded-lg border border-slate-200 bg-slate-50 flex flex-col h-full relative">
+    <div className="tiptap-container rounded-lg border border-slate-200 bg-slate-50 relative overflow-hidden">
       <EditorToolbar
         editor={editor}
         onImageUpload={(file) => handleImageUpload(file, null, null)}
@@ -356,7 +356,7 @@ export default function TiptapEditor({ content, onChange }) {
       />
       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
 
-      <div className="p-8 flex-1 overflow-y-auto relative bg-white">
+      <div className={`p-8 relative bg-white ${minHeightClass}`}>
         {isUploading && (
           <div className="absolute top-4 right-4 bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold shadow z-10 animate-pulse">
             Uploading...

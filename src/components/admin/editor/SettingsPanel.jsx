@@ -223,6 +223,20 @@ export default function SettingsPanel({ form, handleChange, categories, clusters
             </label>
           </div>
 
+          <div className="flex items-center gap-2 mt-2 pt-4 border-t border-slate-200">
+            <input 
+              type="checkbox" 
+              id="show_faq_section"
+              name="show_faq_section" 
+              checked={form.show_faq_section ?? true} 
+              onChange={handleChange} 
+              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+            />
+            <label htmlFor="show_faq_section" className="text-xs font-bold text-slate-600 cursor-pointer">
+              Show FAQ Section (if FAQs exist)
+            </label>
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-slate-600 mb-1">Custom Review Notice (Optional)</label>
             <textarea 

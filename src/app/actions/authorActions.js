@@ -23,7 +23,7 @@ export async function getAuthorBySlug(slug) {
  * Fetch published articles written by a given author name.
  * Sorted by published_at descending.
  */
-export async function getArticlesByAuthor(authorName, limit = 50) {
+export async function getArticlesByAuthor(authorName, limit = 15, offset = 0) {
   const { data, error } = await supabase
     .from("articles")
     .select("id, slug, title, main_image, category_label, category_slug, sub_category_slug, cluster_slug, published_at, read_time, sub_title, author_name, author_image")
@@ -31,13 +31,31 @@ export async function getArticlesByAuthor(authorName, limit = 50) {
     .eq("author_name", authorName)
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
 
   if (error) {
     console.error("Error fetching articles by author:", error);
     return [];
   }
   return data || [];
+}
+
+/**
+ * Fetch total number of published articles written by a given author name.
+ */
+export async function getAuthorArticleCount(authorName) {
+  const { count, error } = await supabase
+    .from("articles")
+    .select("*", { count: 'exact', head: true })
+    .eq("status", "published")
+    .eq("author_name", authorName)
+    .lte("published_at", new Date().toISOString());
+
+  if (error) {
+    console.error("Error fetching article count by author:", error);
+    return 0;
+  }
+  return count || 0;
 }
 
 /**

@@ -1,8 +1,9 @@
-import { getAuthorBySlug, getArticlesByAuthor, getAllAuthorSlugs } from "@/app/actions/authorActions";
+import { getAuthorBySlug, getArticlesByAuthor, getAllAuthorSlugs, getAuthorArticleCount } from "@/app/actions/authorActions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import SidebarWidgets from "@/components/SidebarWidgets";
+import AuthorArticleList from "@/components/AuthorArticleList";
 
 const SITE_URL = "https://www.unitedstatesimmigrationnews.com";
 const FALLBACK_IMAGE = "/images/logo.png";
@@ -46,7 +47,10 @@ export default async function AuthorPage({ params }) {
   const author = await getAuthorBySlug(slug);
   if (!author) notFound();
 
-  const articles = await getArticlesByAuthor(author.name);
+  const [articles, totalCount] = await Promise.all([
+    getArticlesByAuthor(author.name, 15),
+    getAuthorArticleCount(author.name)
+  ]);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -159,7 +163,7 @@ export default async function AuthorPage({ params }) {
           <div className="mt-8 pt-6 border-t border-slate-100 flex flex-wrap gap-6 justify-center md:justify-start">
             <div className="text-center md:text-left">
               <p className="text-2xl font-extrabold text-primary headline-font">
-                {articles.length}+
+                {totalCount}+
               </p>
               <p className="text-xs text-slate-400 uppercase tracking-widest font-bold">
                 Articles
@@ -196,63 +200,11 @@ export default async function AuthorPage({ params }) {
             Latest Articles by {author.name}
           </h2>
 
-          {articles.length === 0 ? (
-            <p className="text-slate-500 text-sm">No articles published yet.</p>
-          ) : (
-            <div className="space-y-0">
-              {articles.map((article) => {
-                const articleUrl = article.cluster_slug
-                  ? `/${article.cluster_slug}/${article.slug}`
-                  : `/${article.slug}`;
-
-                return (
-                  <article
-                    key={article.id}
-                    className="group pb-4 mb-4 border-b border-slate-100 flex gap-4 md:gap-6"
-                  >
-                    <Link href={articleUrl} className="flex-grow min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
-                          {article.category_label}
-                        </span>
-                        <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                        <span className="text-[10px] text-slate-400 font-medium uppercase">
-                          {article.published_at
-                            ? new Date(article.published_at).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })
-                            : ""}
-                        </span>
-                      </div>
-                      <h3 className="text-base md:text-lg font-bold headline-font group-hover:text-primary transition-colors mb-1 text-slate-900 line-clamp-2">
-                        {article.title}
-                      </h3>
-                      <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed hidden md:block">
-                        {article.sub_title}
-                      </p>
-                    </Link>
-
-                    <Link
-                      href={articleUrl}
-                      className="w-[110px] h-[75px] md:w-[160px] md:h-[106px] overflow-hidden flex-shrink-0 block bg-slate-100 relative rounded-md"
-                    >
-                      {article.main_image && (
-                        <Image
-                          src={article.main_image}
-                          alt={article.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 110px, 160px"
-                        />
-                      )}
-                    </Link>
-                  </article>
-                );
-              })}
-            </div>
-          )}
+          <AuthorArticleList 
+            initialArticles={articles} 
+            authorName={author.name} 
+            totalCount={totalCount} 
+          />
         </div>
 
         {/* Sidebar */}

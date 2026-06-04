@@ -1,7 +1,7 @@
 import { BubbleMenu } from "@tiptap/react/menus";
 import { useEffect, useReducer } from "react";
 import { 
-  Bold, Italic, Underline, Heading1, Heading2, Heading3,
+  Bold, Italic, Underline, Heading1, Heading2, Heading3, Heading4, Heading5,
   List, ListOrdered, Quote, Link2, RemoveFormatting
 } from "lucide-react";
 
@@ -92,6 +92,18 @@ export default function EditorBubbleMenu({ editor, onEmbedClick }) {
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} 
         isActive={editor.isActive("heading", { level: 3 })} 
         title="Heading 3" 
+      />
+      <BubbleButton 
+        icon={<Heading4 size={16} />} 
+        onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()} 
+        isActive={editor.isActive("heading", { level: 4 })} 
+        title="Heading 4" 
+      />
+      <BubbleButton 
+        icon={<Heading5 size={16} />} 
+        onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()} 
+        isActive={editor.isActive("heading", { level: 5 })} 
+        title="Heading 5" 
       />
 
       <div className="w-[1px] h-4 bg-slate-200 mx-1" />

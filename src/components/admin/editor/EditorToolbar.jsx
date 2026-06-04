@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useRef, useEffect, useReducer } from "react";
 import { 
-  Bold, Italic, Underline, Strikethrough, Heading1, Heading2, Heading3,
+  Bold, Italic, Underline, Strikethrough, Heading1, Heading2, Heading3, Heading4, Heading5,
   List, ListOrdered, Quote, Code, AlignLeft, AlignCenter, AlignRight, 
   AlignJustify, Image as ImageIcon, Video, Undo, Redo, Info, Table, Link2, LayoutTemplate
 } from "lucide-react";
@@ -91,6 +91,8 @@ export default function EditorToolbar({ editor, onImageUpload, onEmbedClick }) {
       <ToolbarButton icon={<Heading1 size={16} />} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive("heading", { level: 1 })} />
       <ToolbarButton icon={<Heading2 size={16} />} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive("heading", { level: 2 })} />
       <ToolbarButton icon={<Heading3 size={16} />} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} isActive={editor.isActive("heading", { level: 3 })} />
+      <ToolbarButton icon={<Heading4 size={16} />} onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()} isActive={editor.isActive("heading", { level: 4 })} />
+      <ToolbarButton icon={<Heading5 size={16} />} onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()} isActive={editor.isActive("heading", { level: 5 })} />
       
       <Divider />
       

@@ -77,8 +77,8 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
 
   // Determine sidebar / top stories based on what's left after grid
   const unassignedArticles = remainingArticles.filter(a => !gridArticles.includes(a));
-  const topStoryArticles = unassignedArticles.slice(0, 4);
-  const sidebarLatestArticles = unassignedArticles.slice(0, 3);
+  const topStoryArticles = unassignedArticles.slice(0, 10);
+  const sidebarLatestArticles = articles.slice(0, 3); // True latest news, exactly like SidebarWidgets
   const sidebarMostViewed = unassignedArticles.slice(3, 6); // Just a fallback for mock data
 
   return (<>
@@ -125,10 +125,7 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
             </section>
           )}
 
-          {/* Mobile Ad Slot */}
-          <div className="mobile-ad-slot">
-            <div className="bg-slate-50 border border-slate-200 p-4 text-center text-[10px] text-slate-400 uppercase tracking-widest font-bold">Sponsored</div>
-          </div>
+
 
           {/* Top Stories: Horizontal Slider */}
           <section className="py-4 border-y border-slate-100">
@@ -188,10 +185,7 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
             </div>
           </section>
 
-          {/* Mobile Ad Slot */}
-          <div className="mobile-ad-slot">
-            <div className="bg-slate-50 border border-slate-200 p-4 text-center text-[10px] text-slate-400 uppercase tracking-widest font-bold">Sponsored</div>
-          </div>
+
 
           {/* Video Highlights — dynamically rendered from article data */}
           <VideoHighlights videoArticles={videoArticles} />
@@ -215,19 +209,18 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
               <MoreLiveCoverageWidget events={tickerItems} />
               
               {/* Latest News */}
-              <div className="bg-slate-50 p-5 lg:p-6 rounded-none lg:rounded-2xl border border-slate-200/50">
-                <h3 className="font-extrabold text-sm tracking-widest uppercase text-primary mb-5 lg:mb-6 border-b border-slate-200 pb-3">Latest News</h3>
-                <div className="space-y-4 lg:space-y-5">
+              <div className="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/10">
+                <h3 className="font-headline font-extrabold text-sm tracking-widest uppercase text-primary mb-6">Latest News</h3>
+                <div className="space-y-6">
                   {sidebarLatestArticles.map((art, idx) => (
-                    <div key={art.id}>
-                      {idx > 0 && <div className="h-px w-full bg-slate-200/60 mb-4 lg:mb-5"></div>}
-                      <Link href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : `/${art.slug}`} className="group block">
-                        <div className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: idx === 0 ? '#e11d48' : '#64748b' }}>
-                          {getTimeAgo(art.published_at || art.created_at)}
-                        </div>
-                        <h4 className="text-sm font-bold leading-snug group-hover:text-primary transition-colors text-slate-800">{art.title}</h4>
-                      </Link>
-                    </div>
+                    <Link key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : `/${art.slug}`} className="group block">
+                      <div className={`text-xs font-bold mb-1 ${idx === 0 ? 'text-tertiary' : 'text-slate-500'}`}>
+                        {getTimeAgo(art.published_at || art.created_at)}
+                      </div>
+                      <h4 className="text-sm font-bold leading-tight group-hover:text-primary transition-colors text-slate-800">
+                        {art.title}
+                      </h4>
+                    </Link>
                   ))}
                 </div>
               </div>

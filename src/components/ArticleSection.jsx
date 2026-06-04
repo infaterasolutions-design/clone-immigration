@@ -31,6 +31,25 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
     }
   }, [article.id, isExpanded]);
 
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!contentRef.current) return;
+      const rect = contentRef.current.getBoundingClientRect();
+      // Show when user scrolls down into the article content
+      if (rect.top < 100 && rect.bottom > 200) {
+        setShowMobileSidebar(true);
+      } else {
+        setShowMobileSidebar(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const scrollSlider = (direction) => {
     if (sliderRef.current) {
       const scrollAmount = 300;
@@ -557,7 +576,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
 
           {/* Rich Text Content */}
           <div className="relative">
-            <div ref={contentRef} className={`prose prose-lg prose-h2:!text-[20px] md:prose-h2:!text-2xl prose-h2:!font-extrabold max-w-none font-body pb-2 text-slate-800 mt-4`}>
+            <div ref={contentRef} className={`prose prose-lg max-w-none font-body pb-2 text-slate-800 mt-4`}>
               
               {decodedContent ? (
                  (() => {
@@ -861,6 +880,45 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
               </div>
             )}
 
+          </div>
+
+          {/* Mobile Floating Action Bar */}
+          <div className={`sticky bottom-[120px] z-[45] flex lg:hidden justify-end pointer-events-none w-full h-0 overflow-visible transition-all duration-300 ${showMobileSidebar ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'}`}>
+            <div className="flex flex-col items-center justify-center gap-5 pointer-events-auto pr-3 -mt-[150px]">
+              <button
+                onClick={() => handleInteraction("left", "like")}
+                className={`flex flex-col items-center justify-center gap-0.5 transition-all ${
+                  leftIsLiked ? 'text-primary scale-110' : 'text-slate-500 hover:text-primary'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[22px]">thumb_up</span>
+                <span className="text-[10px] font-bold leading-none">{leftLikesCount > 0 ? leftLikesCount : 'Like'}</span>
+              </button>
+              <button
+                onClick={() => handleInteraction("left", "save")}
+                className={`flex flex-col items-center justify-center gap-0.5 transition-all ${
+                  leftIsSaved ? 'text-amber-500 scale-110' : 'text-slate-500 hover:text-amber-500'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[22px]">{leftIsSaved ? 'bookmark_added' : 'bookmark'}</span>
+                <span className="text-[10px] font-bold leading-none">{leftSavesCount > 0 ? leftSavesCount : 'Save'}</span>
+              </button>
+              <button
+                onClick={() => {
+                  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                  if (isMobile && navigator.share) {
+                    navigator.share({
+                      title: article.title || "Article",
+                      url: getArticleUrl(),
+                    }).then(() => recordInteraction(article.id, "share")).catch((err) => console.log("Share canceled", err));
+                  }
+                }}
+                className="flex flex-col items-center justify-center gap-0.5 transition-all text-slate-500 hover:text-primary"
+              >
+                <span className="material-symbols-outlined text-[22px]">share</span>
+                <span className="text-[10px] font-bold leading-none">Share</span>
+              </button>
+            </div>
           </div>
 
 

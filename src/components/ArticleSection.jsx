@@ -556,11 +556,8 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
           )}
 
           {/* Rich Text Content */}
-          <div className={
-            `relative transition-[max-height] duration-[1500ms] ease-in-out ` +
-            (isExpanded ? 'max-h-[50000px] overflow-visible' : 'max-h-[250px] md:max-h-[400px] overflow-hidden')
-          }>
-            <div ref={contentRef} className={`prose prose-lg max-w-none font-body pb-2 text-slate-800 mt-4`}>
+          <div className="relative">
+            <div ref={contentRef} className={`prose prose-lg prose-h2:!text-[20px] md:prose-h2:!text-2xl prose-h2:!font-extrabold max-w-none font-body pb-2 text-slate-800 mt-4`}>
               
               {decodedContent ? (
                  (() => {
@@ -568,45 +565,103 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                    let usedMid = /\[WIDGET_MID\]/i.test(htmlContent);
                    let usedEnd = /\[WIDGET_END\]/i.test(htmlContent);
 
+                   // Find split point (after 2nd paragraph following 1st H2)
+                   let splitIndex = -1;
+                   const h2Index = htmlContent.indexOf('<h2');
+                   if (h2Index !== -1) {
+                     const p1Index = htmlContent.indexOf('</p>', h2Index);
+                     if (p1Index !== -1) {
+                       const p2Index = htmlContent.indexOf('</p>', p1Index + 4);
+                       splitIndex = p2Index !== -1 ? p2Index + 4 : p1Index + 4;
+                     }
+                   }
+                   
+                   // Fallback if no H2: split after 3rd paragraph overall
+                   if (splitIndex === -1) {
+                     let current = -1;
+                     for (let i = 0; i < 3; i++) {
+                       current = htmlContent.indexOf('</p>', current + 1);
+                       if (current === -1) break;
+                     }
+                     if (current !== -1) splitIndex = current + 4;
+                   }
+
+                   // Only inject FOLD if we found a valid split point and it's not at the very end
+                   if (splitIndex !== -1 && splitIndex < htmlContent.length - 20) {
+                     htmlContent = htmlContent.substring(0, splitIndex) + '|||FOLD|||' + htmlContent.substring(splitIndex);
+                   }
+
                    // Auto-inject MID after first paragraph if not manually placed
                    if (!usedMid && midArticles.length > 0) {
                      htmlContent = htmlContent.replace(/(<\/p>)/i, '$1|||WIDGET_MID|||');
                    }
 
                    let processedHtml = htmlContent
-                     // First try to replace the entire paragraph if it mostly contains the shortcode
                      .replace(/<p[^>]*>(?:(?!<\/p>)[\s\S])*?\[WIDGET_MID\](?:(?!<\/p>)[\s\S])*?<\/p>/gi, '|||WIDGET_MID|||')
                      .replace(/<p[^>]*>(?:(?!<\/p>)[\s\S])*?\[WIDGET_END\](?:(?!<\/p>)[\s\S])*?<\/p>/gi, '|||WIDGET_END|||')
-                     // Fallback raw replace just in case
                      .replace(/\[WIDGET_MID\]/gi, '|||WIDGET_MID|||')
                      .replace(/\[WIDGET_END\]/gi, '|||WIDGET_END|||');
 
                    const parts = processedHtml.split('|||');
+                   
+                   const aboveParts = [];
+                   const belowParts = [];
+                   let isBelow = false;
+                   
+                   parts.forEach(part => {
+                     if (part === 'FOLD') { isBelow = true; return; }
+                     if (isBelow) belowParts.push(part);
+                     else aboveParts.push(part);
+                   });
+
+                   const renderPart = (part, index) => {
+                     if (part === 'WIDGET_MID') {
+                       return midArticles.length > 0 ? (
+                         <RelatedArticles key={`mid-${index}`} title="Read More" articles={midArticles} variant="mid" />
+                       ) : null;
+                     }
+                     if (part === 'WIDGET_END') {
+                       return endArticles.length > 0 ? (
+                         <RelatedArticles key={`end-${index}`} title="WHAT TO READ NEXT" articles={endArticles} variant="end" />
+                       ) : null;
+                     }
+                     return part ? (
+                       <div 
+                         key={`html-${index}`} 
+                         className={index === 0 && part.trimStart().startsWith('<p') ? 'drop-cap-article' : ''} 
+                         dangerouslySetInnerHTML={{ __html: part }} 
+                       />
+                     ) : null;
+                   };
+
+                   const hasBelow = belowParts.some(p => p.trim() !== '' && p !== 'WIDGET_END');
 
                    return (
                      <>
-                       {parts.map((part, index) => {
-                         if (part === 'WIDGET_MID') {
-                           return midArticles.length > 0 ? (
-                             <RelatedArticles key={`mid-${index}`} title="Read More" articles={midArticles} variant="mid" />
-                           ) : null;
-                         }
-                         if (part === 'WIDGET_END') {
-                           return endArticles.length > 0 ? (
-                             <RelatedArticles key={`end-${index}`} title="WHAT TO READ NEXT" articles={endArticles} variant="end" />
-                           ) : null;
-                         }
-                         return part ? (
-                           <div 
-                             key={`html-${index}`} 
-                             className={index === 0 && part.trimStart().startsWith('<p') ? 'drop-cap-article' : ''} 
-                             dangerouslySetInnerHTML={{ __html: part }} 
-                           />
-                         ) : null;
-                       })}
-                       {/* Render End widget at the bottom if not manually placed inside the text */}
-                       {!usedEnd && endArticles.length > 0 && (
-                         <RelatedArticles title="WHAT TO READ NEXT" articles={endArticles} variant="end" />
+                       {/* Always render Above the Fold */}
+                       {aboveParts.map(renderPart)}
+                       
+                       {/* Render Below the Fold conditionally */}
+                       <div className={`transition-[max-height] duration-[1500ms] ease-in-out overflow-hidden ${isExpanded || !hasBelow ? 'max-h-[50000px]' : 'max-h-0'}`}>
+                         {belowParts.map(renderPart)}
+                         
+                         {/* Render End widget at the bottom if not manually placed inside the text */}
+                         {!usedEnd && endArticles.length > 0 && (
+                           <RelatedArticles title="WHAT TO READ NEXT" articles={endArticles} variant="end" />
+                         )}
+                       </div>
+
+                       {/* Keep Reading Button (only if there is content below and it's not expanded) */}
+                       {hasBelow && !isExpanded && (
+                         <div className="absolute bottom-0 left-0 right-0 h-40 pb-4 bg-gradient-to-t from-white via-white/90 to-transparent z-10 flex items-end justify-center">
+                           <button 
+                             onClick={() => setIsExpanded(true)}
+                             className="bg-primary hover:bg-blue-800 text-white font-bold font-headline py-3 px-8 rounded-full shadow-lg transition-transform transform hover:-translate-y-1 hover:shadow-xl flex items-center gap-2 tracking-wide uppercase text-sm"
+                           >
+                             Keep Reading
+                             <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                           </button>
+                         </div>
                        )}
                      </>
                    );
@@ -806,20 +861,6 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
               </div>
             )}
 
-            {/* Gradient Overlay & Button */}
-            <div className={
-              `w-full flex items-end justify-center transition-opacity duration-1000 ` +
-              (isExpanded ? 'opacity-0 pointer-events-none ' : 'opacity-100 ') +
-              `absolute bottom-0 left-0 right-0 h-48 pb-4 bg-gradient-to-t from-white via-white/90 to-transparent z-10`
-            }>
-              <button 
-                onClick={() => setIsExpanded(true)}
-                className="bg-primary hover:bg-blue-800 text-white font-bold font-headline py-3 px-8 rounded-full shadow-lg transition-transform transform hover:-translate-y-1 hover:shadow-xl flex items-center gap-2 tracking-wide uppercase text-sm"
-              >
-                Keep Reading
-                <span className="material-symbols-outlined text-[18px]">expand_more</span>
-              </button>
-            </div>
           </div>
 
 

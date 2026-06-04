@@ -15,18 +15,18 @@ export default function RelatedArticles({ title, articles, variant }) {
     }
 
     return (
-      <div className="mt-4 mb-8 bg-transparent not-prose">
-        <div className="flex items-center gap-4 mb-0">
-          <div className="flex-1 h-[2px] bg-[#d4d4d4]" />
-          <h3 className="text-[14px] font-serif uppercase text-[#333333] tracking-wider whitespace-nowrap">
+      <div className="-mt-3 mb-2 bg-transparent not-prose">
+        <div className="flex items-center gap-2 mb-0">
+          <div className="flex-1 h-[2px] bg-[#d4d4d4] relative translate-y-[3px]" />
+          <h3 className="text-[13px] leading-none font-serif uppercase text-[#333333] tracking-wider whitespace-nowrap">
             YOU MAY LIKE
           </h3>
-          <div className="flex-1 h-[2px] bg-[#d4d4d4]" />
+          <div className="flex-1 h-[2px] bg-[#d4d4d4] relative translate-y-[3px]" />
         </div>
-        <ul className="list-none p-0 m-0 -mt-1">
+        <ul className="list-none p-0 m-0 -mt-3">
           {articles.map((article, idx) => (
-            <li key={article.url || idx} className={`py-2 flex items-center gap-4 ${idx !== articles.length - 1 ? 'border-b border-[#ececec]' : ''}`}>
-              <Link href={article.url || '#'} className="flex-shrink-0 block">
+            <li key={article.url || idx} className={`py-0 flex items-center gap-2 ${idx !== articles.length - 1 ? 'border-b border-[#ececec]' : ''}`}>
+              <Link href={article.url || '#'} className="flex-shrink-0 block mt-2 mb-2">
                 <Image
                   src={article.main_image || '/images/logo.png'}
                   alt={article.title}
@@ -52,18 +52,18 @@ export default function RelatedArticles({ title, articles, variant }) {
 
   if (variant === 'end') {
     return (
-      <div className="mt-6 mb-12 bg-transparent not-prose">
-        <div className="flex items-center gap-4 mb-0">
-          <div className="flex-1 h-[2px] bg-[#d4d4d4]" />
-          <h3 className="text-[14px] font-serif uppercase text-[#333333] tracking-wider whitespace-nowrap">
+      <div className="-mt-3 mb-2 bg-transparent not-prose">
+        <div className="flex items-center gap-2 mb-0">
+          <div className="flex-1 h-[2px] bg-[#d4d4d4] relative translate-y-[3px]" />
+          <h3 className="text-[13px] leading-none font-serif uppercase text-[#333333] tracking-wider whitespace-nowrap">
             {title}
           </h3>
-          <div className="flex-1 h-[2px] bg-[#d4d4d4]" />
+          <div className="flex-1 h-[2px] bg-[#d4d4d4] relative translate-y-[3px]" />
         </div>
-        <ul className="list-none p-0 m-0 -mt-1">
+        <ul className="list-none p-0 m-0 -mt-3">
           {articles.map((article, idx) => (
-            <li key={article.url || idx} className={`py-2 flex items-center gap-4 ${idx !== articles.length - 1 ? 'border-b border-[#ececec]' : ''}`}>
-              <Link href={article.url || '#'} className="flex-shrink-0 block">
+            <li key={article.url || idx} className={`py-0 flex items-center gap-2 ${idx !== articles.length - 1 ? 'border-b border-[#ececec]' : ''}`}>
+              <Link href={article.url || '#'} className="flex-shrink-0 block mt-2 mb-2">
                 <Image
                   src={article.main_image || '/images/logo.png'}
                   alt={article.title}

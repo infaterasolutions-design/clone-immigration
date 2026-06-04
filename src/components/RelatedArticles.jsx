@@ -25,7 +25,7 @@ export default function RelatedArticles({ title, articles, variant }) {
         </div>
         <ul className="list-none p-0 m-0 -mt-1">
           {articles.map((article, idx) => (
-            <li key={article.url || idx} className={`py-4 flex items-start gap-3 md:gap-4 ${idx !== articles.length - 1 ? 'border-b border-[#ececec]' : ''}`}>
+            <li key={article.url || idx} className={`py-4 flex items-center gap-3 md:gap-4 ${idx !== articles.length - 1 ? 'border-b border-[#ececec]' : ''}`}>
               <Link href={article.url || '#'} className="flex-shrink-0">
                 <Image
                   src={article.main_image || '/images/logo.png'}
@@ -62,7 +62,7 @@ export default function RelatedArticles({ title, articles, variant }) {
         </div>
         <ul className="list-none p-0 m-0 -mt-1">
           {articles.map((article, idx) => (
-            <li key={article.url || idx} className={`py-4 flex items-start gap-3 md:gap-4 ${idx !== articles.length - 1 ? 'border-b border-[#ececec]' : ''}`}>
+            <li key={article.url || idx} className={`py-4 flex items-center gap-3 md:gap-4 ${idx !== articles.length - 1 ? 'border-b border-[#ececec]' : ''}`}>
               <Link href={article.url || '#'} className="flex-shrink-0">
                 <Image
                   src={article.main_image || '/images/logo.png'}

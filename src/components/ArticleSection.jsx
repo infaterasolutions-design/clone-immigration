@@ -372,13 +372,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
             articleTitle={article.title}
           />
           <div className="flex items-center gap-3 mb-5 md:mb-3 flex-wrap">
-            {article.cluster_slug ? (
-              <div className="bg-[#eef2ff] text-[#1e3a8a] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
-                <Link href={`/${article.cluster_slug}/`} className="hover:opacity-80 transition-opacity">
-                  {article.clusterDisplayName || article.cluster_slug.toUpperCase().replace(/-/g, ' ')}
-                </Link>
-              </div>
-            ) : article.categorySlug ? (
+            {article.categorySlug && (
               <div className="bg-[#eef2ff] text-[#1e3a8a] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
                 <Link href={`/${article.categorySlug}/`} className="hover:opacity-80 transition-opacity">
                   {article.categoryLabel || article.categorySlug.toUpperCase().replace(/-/g, ' ')}
@@ -392,7 +386,16 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                   </>
                 )}
               </div>
-            ) : null}
+            )}
+            
+            {article.cluster_slug && (
+              <div className="bg-[#f0fdf4] text-[#166534] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
+                <Link href={`/${article.cluster_slug}/`} className="hover:opacity-80 transition-opacity">
+                  {article.clusterDisplayName || article.cluster_slug.toUpperCase().replace(/-/g, ' ')}
+                </Link>
+              </div>
+            )}
+            
             <span className="text-slate-300 mx-1 text-[8px]">●</span>
             <span className="text-slate-500 text-sm font-medium">{article.readTime}</span>
           </div>

@@ -45,10 +45,16 @@ export default function AdminCategories() {
   }
 
   async function handleDelete(id) {
-    if (!confirm("Delete this category? Articles using it won't be affected.")) return;
-    const { error } = await supabase.from("categories").delete().eq("id", id);
-    if (error) { showToast("Failed to delete", "error"); return; }
-    showToast("Category deleted");
+    if (!confirm("Delete this category? It will be moved to the Recycle Bin. Articles using it won't be affected.")) return;
+    
+    const { moveToRecycleBin } = await import("@/app/actions/recycleBin");
+    const { success, error } = await moveToRecycleBin("categories", id, "name");
+
+    if (!success) {
+      showToast(`Failed to move to recycle bin: ${error}`, "error"); 
+      return; 
+    }
+    showToast("Category moved to Recycle Bin");
     fetchCategories();
   }
 

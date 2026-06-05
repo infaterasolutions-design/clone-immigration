@@ -44,19 +44,23 @@ export default function AdminArticles() {
   }
 
   async function handleDelete(id) {
-    if (!confirm("Are you sure you want to delete this article?")) return;
-    
+    if (!confirm("Are you sure you want to delete this article? It will be moved to the Recycle Bin.")) return;
+
     // First, delete any linked videos to avoid foreign key constraint violations
+    // We do this before moving to recycle bin so the hard delete of the article succeeds
     await supabase.from("videos").delete().eq("article_id", id);
     
-    const { error } = await supabase.from("articles").delete().eq("id", id);
-    if (error && (error.message || error.code || error.details)) { 
-      console.error("Delete error:", JSON.stringify(error));
-      showToast(`Failed to delete: ${error.message || error.details || error.code}`, "error"); 
-      return; 
+    // Move the article to recycle bin
+    const { moveToRecycleBin } = await import("@/app/actions/recycleBin");
+    const { success, error } = await moveToRecycleBin("articles", id, "title");
+
+    if (!success) {
+      console.error("Delete error:", error);
+      showToast(`Failed to move to recycle bin: ${error}`, "error"); 
+    } else {
+      setArticles((prev) => prev.filter((a) => a.id !== id));
+      showToast("Article moved to Recycle Bin");
     }
-    showToast("Article deleted");
-    fetchArticles();
   }
 
   async function toggleFeatured(article) {
@@ -249,7 +253,12 @@ export default function AdminArticles() {
               <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => toggleFeatured(row)} title="Toggle featured">
                 {row.is_featured ? "★" : "☆"}
               </button>
-              <a className="admin-btn admin-btn-ghost admin-btn-sm" href={`/${row.slug}`} target="_blank" rel="noopener noreferrer">
+              <a 
+                className="admin-btn admin-btn-ghost admin-btn-sm" 
+                href={row.status === "published" && row.published_at && new Date(row.published_at) > new Date() ? `/${row.slug}?preview=true` : `/${row.slug}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
                 View
               </a>
               <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => router.push(`/admin/articles/${row.id}/edit`)}>

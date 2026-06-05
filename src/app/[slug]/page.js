@@ -138,8 +138,9 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function SlugPage({ params }) {
+export default async function SlugPage({ params, searchParams }) {
   const { slug } = await params;
+  const isPreview = (await searchParams)?.preview === 'true';
 
   // ─── Smart Detection: Is this a category page? ───
   const category = await getCategoryBySlug(slug);
@@ -207,7 +208,7 @@ export default async function SlugPage({ params }) {
   if (
     !article ||
     article.status !== 'published' ||
-    (publishedAt && publishedAt > now)
+    (publishedAt && publishedAt > now && !isPreview)
   ) {
     return notFound();
   }

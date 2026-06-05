@@ -218,7 +218,7 @@ export default function NewArticle() {
               disabled={loading || !form.title}
               className="px-4 py-2 rounded-md text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
             >
-              🚀 Publish
+              {form.published_at_local && new Date(form.published_at_local) > new Date() ? "🚀 Schedule Post" : "🚀 Publish Post"}
             </button>
           </div>
         </div>

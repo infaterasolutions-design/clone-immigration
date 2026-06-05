@@ -115,8 +115,9 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function SubcategoryPage({ params }) {
+export default async function SubcategoryPage({ params, searchParams }) {
   const { slug, sub } = await params;
+  const isPreview = (await searchParams)?.preview === 'true';
 
   // 1. Validate parent category exists
   const category = await getCategoryBySlug(slug);
@@ -171,7 +172,7 @@ export default async function SubcategoryPage({ params }) {
   if (
     !article ||
     article.status !== 'published' ||
-    (publishedAt && publishedAt > now) ||
+    (publishedAt && publishedAt > now && !isPreview) ||
     article.cluster_slug !== slug
   ) {
     return notFound();

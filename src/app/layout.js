@@ -37,6 +37,9 @@ export const metadata = {
       'en-US': 'https://www.unitedstatesimmigrationnews.com/',
       'x-default': 'https://www.unitedstatesimmigrationnews.com/',
     },
+    types: {
+      "application/rss+xml": "https://www.unitedstatesimmigrationnews.com/rss.xml",
+    },
   },
   robots: {
     index: true,

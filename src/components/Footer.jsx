@@ -24,6 +24,7 @@ export default function Footer() {
               <li><Link href="#" className="hover:text-primary transition-colors py-1 block">USCIS Processing Times</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors py-1 block">Visa Bulletin Archive</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors py-1 block">H1B Lottery Data</Link></li>
+              <li><a href="/rss.xml" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors py-1 flex items-center gap-2"><span className="material-symbols-outlined text-[16px]">rss_feed</span> RSS Feed</a></li>
             </ul>
           </div>
           <div>

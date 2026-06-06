@@ -38,7 +38,10 @@ export const metadata = {
       'x-default': 'https://www.unitedstatesimmigrationnews.com/',
     },
     types: {
-      "application/rss+xml": "https://www.unitedstatesimmigrationnews.com/rss.xml",
+      "application/rss+xml": [
+        { url: "https://www.unitedstatesimmigrationnews.com/rss.xml", title: "US Immigration News – All Updates" },
+        { url: "https://www.unitedstatesimmigrationnews.com/rss/insights.xml", title: "US Immigration News – Insights" }
+      ],
     },
   },
   robots: {

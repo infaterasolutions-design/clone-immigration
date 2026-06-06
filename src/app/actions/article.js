@@ -143,14 +143,22 @@ export async function fetchArticleInitialDataBySlug(slug) {
   return resolveArticle(data);
 }
 
-export async function fetchReadMoreArticles(currentArticleId) {
-  const { data } = await supabase.from('articles')
+export async function fetchReadMoreArticles(currentArticleId, categorySlug) {
+  let query = supabase.from('articles')
     .select(ARTICLE_SELECT)
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
     .neq('id', currentArticleId)
     .order('published_at', { ascending: false })
     .limit(6);
+    
+  if (categorySlug === 'insights') {
+    query = query.eq('category_slug', 'insights');
+  } else {
+    query = query.neq('category_slug', 'insights');
+  }
+
+  const { data } = await query;
     
   if (!data) return [];
   

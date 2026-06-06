@@ -44,19 +44,23 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
     if (days === 1) return "1 DAY AGO";
     return `${days} DAYS AGO`;
   };
-  // Helper to find article by ID
-  const findById = (id) => id ? articles.find(a => a.id === id) : null;
+  // 1. Separate Insights and Standard Articles
+  const insightsArticles = articles.filter(a => a.category_slug === 'insights' || a.categorySlug === 'insights');
+  const standardArticles = articles.filter(a => a.category_slug !== 'insights' && a.categorySlug !== 'insights');
 
-  // 1. Determine Hero Article
+  // Helper to find article by ID
+  const findById = (id) => id ? standardArticles.find(a => a.id === id) : null;
+
+  // 2. Determine Hero Article
   // Prioritize manually selected hero, then fallback to is_featured, then newest article
   const manualHero = findById(layout?.hero_article_id);
-  const featuredArticle = articles.find(a => a.is_featured === true);
-  const heroArticle = manualHero || featuredArticle || articles[0];
+  const featuredArticle = standardArticles.find(a => a.is_featured === true);
+  const heroArticle = manualHero || featuredArticle || standardArticles[0];
 
-  // 2. Filter out Hero from remaining
-  const remainingArticles = articles.filter(a => a.id !== heroArticle?.id);
+  // 3. Filter out Hero from remaining
+  const remainingArticles = standardArticles.filter(a => a.id !== heroArticle?.id);
 
-  // 3. Determine Grid Articles
+  // 4. Determine Grid Articles
   const gridArticles = [];
   
   // Try to push manually selected grid items if they exist
@@ -77,8 +81,11 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
 
   // Determine sidebar / top stories based on what's left after grid
   const unassignedArticles = remainingArticles.filter(a => !gridArticles.includes(a));
-  const topStoryArticles = unassignedArticles.slice(0, 10);
-  const sidebarLatestArticles = articles.slice(0, 3); // True latest news, exactly like SidebarWidgets
+  
+  // Top Stories is exclusively Insights articles
+  const topStoryArticles = insightsArticles.slice(0, 6);
+  
+  const sidebarLatestArticles = standardArticles.slice(0, 3); // True latest news, exactly like SidebarWidgets
   const sidebarMostViewed = unassignedArticles.slice(3, 6); // Just a fallback for mock data
 
   return (<>
@@ -130,27 +137,34 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
           {/* Top Stories: Horizontal Slider */}
           <section className="py-4 border-y border-slate-100">
             <div className="flex items-center justify-between mb-4 md:mb-6">
-              <h2 className="text-lg md:text-xl font-extrabold headline-font border-l-4 border-primary pl-3 md:pl-4 uppercase tracking-tight text-slate-900">Top Stories</h2>
+              <h2 className="text-lg md:text-xl font-extrabold headline-font border-l-4 border-primary pl-3 md:pl-4 uppercase tracking-tight text-slate-900">
+                Top Stories
+                <span className="block text-sm text-slate-500 font-normal normal-case tracking-normal mt-1 border-none">Real experiences, city guides &amp; insider tips for immigrants</span>
+              </h2>
               <div className="flex items-center gap-2">
                 <button onClick={() => scrollTopStories('left')} className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600"><span className="material-symbols-outlined text-sm">chevron_left</span></button>
                 <button onClick={() => scrollTopStories('right')} className="p-2 md:p-1.5 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-slate-600"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
               </div>
             </div>
             <div ref={topStoriesRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x mt-2">
-              {topStoryArticles.map((art) => (
-                <Link key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : (art.slug ? `/${art.slug}` : `/article/${art.id}`)} className="flex-shrink-0 w-[240px] md:w-[280px] snap-start group cursor-pointer block">
-                  <div className="relative aspect-[16/10] w-full overflow-hidden mb-3 rounded-md">
-                    <Image width={300} height={200} quality={40} loading="lazy" decoding="async" sizes="280px" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={art.mainImage || FALLBACK_IMAGE} alt={art.title} />
-                    <div className="absolute top-2 left-2 bg-primary px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-tighter rounded-sm">{art.categoryLabel}</div>
-                  </div>
-                  <h4 className="font-bold text-sm leading-snug group-hover:text-primary transition-colors mb-2 line-clamp-2 text-slate-900">{art.title}</h4>
-                  <div className="flex items-center gap-3 text-[10px] text-slate-500 font-medium">
-                    <span>{art.readTime}</span>
-                    <span>•</span>
-                    <span>{art.date}</span>
-                  </div>
-                </Link>
-              ))}
+              {topStoryArticles.length > 0 ? (
+                topStoryArticles.map((art) => (
+                  <Link key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : (art.slug ? `/${art.slug}` : `/article/${art.id}`)} className="flex-shrink-0 w-[240px] md:w-[280px] snap-start group cursor-pointer block">
+                    <div className="relative aspect-[16/10] w-full overflow-hidden mb-3 rounded-md">
+                      <Image width={300} height={200} quality={40} loading="lazy" decoding="async" sizes="280px" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={art.mainImage || FALLBACK_IMAGE} alt={art.title} />
+                      <div className="absolute top-2 left-2 bg-primary px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-tighter rounded-sm">{art.categoryLabel}</div>
+                    </div>
+                    <h4 className="font-bold text-sm leading-snug group-hover:text-primary transition-colors mb-2 line-clamp-2 text-slate-900">{art.title}</h4>
+                    <div className="flex items-center gap-3 text-[10px] text-slate-500 font-medium">
+                      <span>{art.readTime}</span>
+                      <span>•</span>
+                      <span>{art.date}</span>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-sm text-slate-500 py-4 px-2">New Insights coming soon. Stay tuned.</p>
+              )}
             </div>
           </section>
 
@@ -195,7 +209,7 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
             
             {/* Left/Main Column */}
             <div className="lg:col-span-2">
-              <LatestUpdatesFeed articles={articles} />
+              <LatestUpdatesFeed articles={standardArticles} />
             </div>
 
             {/* Right/Sidebar Column (stacks below on mobile) */}

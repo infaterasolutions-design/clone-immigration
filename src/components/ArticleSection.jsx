@@ -59,11 +59,11 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
 
   useEffect(() => {
     async function loadReadMore() {
-      const articles = await fetchReadMoreArticles(article.id);
+      const articles = await fetchReadMoreArticles(article.id, article.categorySlug || article.category_slug);
       setReadMoreArticles(articles);
     }
     loadReadMore();
-  }, [article.id]);
+  }, [article.id, article.categorySlug, article.category_slug]);
 
   // Independent interaction states
   const [leftIsLiked, setLeftIsLiked] = useState(false);

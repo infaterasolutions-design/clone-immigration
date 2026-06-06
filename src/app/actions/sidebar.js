@@ -9,6 +9,7 @@ export async function getSidebarData() {
       .from('articles')
       .select('id, title, slug, cluster_slug, published_at')
       .eq('status', 'published')
+      .neq('category_slug', 'insights')
       .lte('published_at', new Date().toISOString())
       .order('published_at', { ascending: false })
       .limit(3);
@@ -18,6 +19,7 @@ export async function getSidebarData() {
       .from('articles')
       .select('id, title, slug, cluster_slug, category_label')
       .eq('status', 'published')
+      .neq('category_slug', 'insights')
       .eq('is_most_viewed', true)
       .limit(3);
 
@@ -27,6 +29,7 @@ export async function getSidebarData() {
         .from('articles')
         .select('id, title, slug, cluster_slug, category_label')
         .eq('status', 'published')
+        .neq('category_slug', 'insights')
         .limit(3);
       mostViewedData = fallbackData;
     }

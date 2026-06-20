@@ -81,7 +81,16 @@ export async function GET() {
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${Array.from(urls).filter(path => !["/category/", "/maryland/", "/minnesota/", "/live-updates/"].some(prefix => path.startsWith(prefix))).map(path => {
+  ${Array.from(urls).filter(path => {
+    if (["/category/", "/maryland/", "/minnesota/", "/live-updates/"].some(prefix => path.startsWith(prefix))) return false;
+    
+    // Remove thin subcategories (path has format /parent/sub/ where parent is one of the below)
+    const thinParents = ["visa", "guides", "students", "asylum-refugees", "ice-border", "uscis", "green-card"];
+    const segments = path.split('/').filter(Boolean);
+    if (segments.length > 1 && thinParents.includes(segments[0])) return false;
+    
+    return true;
+  }).map(path => {
     const lastMod = dateMap[path] ? new Date(dateMap[path]).toISOString() : fallbackDate;
     return `
   <url>

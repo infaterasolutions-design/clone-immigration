@@ -6,7 +6,7 @@ export function generateMetadata() {
     description:
       "Get in touch with United States Immigration News. Reach out for questions, feedback, business inquiries, or collaboration ideas.",
     alternates: {
-      canonical: "https://www.unitedstatesimmigrationnews.com/contact-us/",
+      canonical: "https://www.unitedstatesimmigrationnews.com/contact-us",
     },
   };
 }

@@ -4,7 +4,7 @@ export function generateMetadata() {
     description:
       "Read the disclaimer for United States Immigration News. Content is for informational purposes only and does not constitute legal advice.",
     alternates: {
-      canonical: "https://www.unitedstatesimmigrationnews.com/disclaimer/",
+      canonical: "https://www.unitedstatesimmigrationnews.com/disclaimer",
     },
   };
 }

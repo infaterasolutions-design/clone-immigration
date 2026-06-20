@@ -41,6 +41,7 @@ const nextConfig = {
     ],
   },
   trailingSlash: false,
+  htmlLimitedBots: /Googlebot|Google-InspectionTool|Bingbot|Yandex/i,
   async redirects() {
     return [
       // ─── Universal Trailing Slash Remover ───

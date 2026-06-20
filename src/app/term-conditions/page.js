@@ -7,7 +7,7 @@ export function generateMetadata() {
       "Read the Terms and Conditions of United States Immigration News governing your access and use of our website, content, and services.",
     alternates: {
       canonical:
-        "https://www.unitedstatesimmigrationnews.com/term-conditions/",
+        "https://www.unitedstatesimmigrationnews.com/term-conditions",
     },
   };
 }

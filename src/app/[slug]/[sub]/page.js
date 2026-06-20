@@ -26,9 +26,23 @@ export async function generateMetadata({ params }) {
         title: subcategory.seo_title || `${subcategory.name} | ${category.name} - United States Immigration News`,
         description: subcategory.seo_description || subcategory.description || `Latest ${subcategory.name} news and updates.`,
         alternates: {
-          canonical: `https://www.unitedstatesimmigrationnews.com/${category.slug}/${subcategory.slug}/`,
+          canonical: `https://www.unitedstatesimmigrationnews.com/${category.slug}/${subcategory.slug}`,
         },
-        robots: { index: true, follow: true, 'max-image-preview': 'large' },
+        robots: (() => {
+          const thinSubcategories = [
+            "students/cpt", "students/dhs-student-rules",
+            "visa/visa-refusals", "visa/visa-stamping", "visa/o-1", "visa/j-1", "visa/b1-b2",
+            "guides/required-documents", "guides/faqs", "guides/how-to", "guides/application-process",
+            "asylum-refugees/work-authorization", "asylum-refugees/tps", "asylum-refugees/refugee-programs",
+            "policy-watch/dhs-policies",
+            "ice-border/migrant-policies", "ice-border/deportation"
+          ];
+          const path = `${category.slug}/${subcategory.slug}`;
+          if (thinSubcategories.includes(path)) {
+            return { index: false, follow: true };
+          }
+          return { index: true, follow: true, 'max-image-preview': 'large' };
+        })(),
       };
     }
   }
@@ -46,7 +60,7 @@ export async function generateMetadata({ params }) {
           description: `Latest immigration news and updates for ${cityLocation.name}, ${stateLocation.name}.`,
         },
         alternates: {
-          canonical: `https://www.unitedstatesimmigrationnews.com/${stateLocation.slug}/${cityLocation.slug}/`,
+          canonical: `https://www.unitedstatesimmigrationnews.com/${stateLocation.slug}/${cityLocation.slug}`,
         },
         robots: { index: true, follow: true },
       };

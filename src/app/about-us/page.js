@@ -6,7 +6,7 @@ export async function generateMetadata() {
     description:
       "Learn about United States Immigration News — your trusted source for real-time U.S. immigration news, visa updates, policy developments, and more.",
     alternates: {
-      canonical: "https://www.unitedstatesimmigrationnews.com/about-us/",
+      canonical: "https://www.unitedstatesimmigrationnews.com/about-us",
     },
     robots: {
       index: true,

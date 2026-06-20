@@ -7,7 +7,7 @@ export async function generateMetadata() {
       "Read the Privacy Policy of United States Immigration News to understand how we collect, use, and protect your personal information.",
     alternates: {
       canonical:
-        "https://www.unitedstatesimmigrationnews.com/privacy-policy/",
+        "https://www.unitedstatesimmigrationnews.com/privacy-policy",
     },
     robots: {
       index: true,

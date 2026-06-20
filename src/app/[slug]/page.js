@@ -26,7 +26,7 @@ export async function generateMetadata({ params }) {
       title: category.seo_title || `${category.name} - United States Immigration News`,
       description: category.seo_description || category.description || `Latest ${category.name} news and updates.`,
       alternates: {
-        canonical: `https://www.unitedstatesimmigrationnews.com/${category.slug}/`,
+        canonical: `https://www.unitedstatesimmigrationnews.com/${category.slug}`,
       },
       robots: { index: true, follow: true, 'max-image-preview': 'large' },
     };
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }) {
         description: `Latest immigration news and updates for ${location.name}.`,
       },
       alternates: {
-        canonical: `https://www.unitedstatesimmigrationnews.com/${location.slug}/`,
+        canonical: `https://www.unitedstatesimmigrationnews.com/${location.slug}`,
       },
       robots: { index: true, follow: true },
     };
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }) {
       title: liveEvent?.title || `${label} - United States Immigration News`,
       description: liveEvent?.header_context?.slice(0, 160) || `Live updates for ${label}.`,
       alternates: {
-        canonical: `https://www.unitedstatesimmigrationnews.com/${slug}/`,
+        canonical: `https://www.unitedstatesimmigrationnews.com/${slug}`,
       },
       robots: { index: true, follow: true, 'max-image-preview': 'large' },
     };

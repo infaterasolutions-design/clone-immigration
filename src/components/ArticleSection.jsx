@@ -429,7 +429,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
               )}
             </div>
             <div className="flex flex-col justify-center gap-1.5">
-              <Link href={`/author/${article.authorName?.toLowerCase()}`} className="text-slate-900 font-bold text-[16px] leading-none hover:text-primary transition-colors">{article.authorName}</Link>
+              <Link href={`/author/${article.authorDetails?.slug || article.authorName?.toLowerCase().replace(/\s+/g, '-')}`} className="text-slate-900 font-bold text-[16px] leading-none hover:text-primary transition-colors">{article.authorName}</Link>
               {article.authorRole && (
                 <div className="text-primary text-[13px] font-semibold tracking-wide uppercase mt-0.5 mb-1">{article.authorRole}</div>
               )}

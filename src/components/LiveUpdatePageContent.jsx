@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import SidebarWidgets from "@/components/SidebarWidgets";
 import { getLiveEventById } from "@/lib/liveUpdatesData";
@@ -277,7 +278,16 @@ export default function LiveUpdatePageContent({ eventId, breadcrumbLabel, pageUr
 
             {event.heroImage && (
               <div className="relative w-full aspect-video overflow-hidden rounded-xl shadow-2xl mb-8">
-                <img className="w-full h-full object-cover" src={event.heroImage} alt={event.title} />
+                <Image 
+                  src={event.heroImage} 
+                  alt={event.title}
+                  width={1200}
+                  height={630}
+                  priority={true}
+                  quality={85}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
+                  className="w-full h-full object-cover" 
+                />
                 {event.imageCaption && (
                   <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 bg-slate-900/80 backdrop-blur-sm text-white px-2 md:px-3 py-1 text-[9px] md:text-[10px] uppercase font-bold tracking-widest rounded-sm">
                     {event.imageCaption}

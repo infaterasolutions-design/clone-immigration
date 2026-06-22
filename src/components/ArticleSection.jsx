@@ -545,12 +545,12 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
             <div className="overflow-hidden rounded-xl">
               <Image 
                 src={article.mainImage || FALLBACK_IMAGE}
-                width={1200} 
-                height={675}
-                quality={75}
-                priority={true}
-                fetchPriority="high"
                 alt={article.title}
+                width={1200} 
+                height={630}
+                priority={true}
+                quality={85}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
                 className="w-full aspect-[16/9] object-cover" 
               />
             </div>

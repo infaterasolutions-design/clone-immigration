@@ -433,7 +433,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
               {article.authorRole && (
                 <div className="text-primary text-[13px] font-semibold tracking-wide uppercase mt-0.5 mb-1">{article.authorRole}</div>
               )}
-              <div className="text-slate-500 text-[14px] leading-none">{(() => {
+              <div suppressHydrationWarning className="text-slate-500 text-[14px] leading-none">{(() => {
                 const d = article.published_at ? new Date(article.published_at) : null;
                 if (!d) return article.date || "";
                 const month = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
@@ -650,6 +650,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                      return part ? (
                        <div 
                          key={`html-${index}`} 
+                         suppressHydrationWarning
                          className={isFirstOverall && part.trimStart().startsWith('<p') ? 'drop-cap-article' : ''} 
                          dangerouslySetInnerHTML={{ __html: part }} 
                        />

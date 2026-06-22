@@ -45,7 +45,7 @@ const LiveUpdateCard = ({ update, pageUrl }) => {
       )}
       
       <div className="flex flex-col relative">
-        <header className="flex items-center gap-2 mb-3">
+        <header suppressHydrationWarning className="flex items-center gap-2 mb-3">
           <span className="font-bold text-sm text-slate-900">{timeAgo(update.created_at).relative}</span>
           <span className="text-xs text-slate-400">({timeAgo(update.created_at).exact})</span>
         </header>
@@ -65,6 +65,7 @@ const LiveUpdateCard = ({ update, pageUrl }) => {
 
           <div className="relative">
             <div 
+              suppressHydrationWarning
               className={`text-[17px] leading-[1.65] font-serif text-slate-800 transition-all duration-300 prose prose-slate max-w-none prose-a:text-primary prose-a:no-underline hover:prose-a:underline ${!isExpanded ? 'line-clamp-8' : ''}`}
               dangerouslySetInnerHTML={{ __html: update.content }}
             />

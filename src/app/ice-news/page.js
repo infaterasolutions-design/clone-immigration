@@ -1,9 +1,12 @@
 import LiveUpdatePageContent from "@/components/LiveUpdatePageContent";
 
-export default function IceNewsPage() {
+import { getLiveEventById } from "@/lib/liveUpdatesData";
+
+export default async function IceNewsPage() {
+  const event = await getLiveEventById("ice-immigration-enforcement-updates-live");
   return (
     <LiveUpdatePageContent
-      eventId="ice-immigration-enforcement-updates-live"
+      event={event}
       breadcrumbLabel="ICE News"
       pageUrl="/ice-news/"
     />

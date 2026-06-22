@@ -1,9 +1,12 @@
 import LiveUpdatePageContent from "@/components/LiveUpdatePageContent";
 
-export default function ImmigrationNewsPage() {
+import { getLiveEventById } from "@/lib/liveUpdatesData";
+
+export default async function ImmigrationNewsPage() {
+  const event = await getLiveEventById("immigration-news-today-trump-announcements-uscis-updates-policy-developments");
   return (
     <LiveUpdatePageContent
-      eventId="immigration-news-today-trump-announcements-uscis-updates-policy-developments"
+      event={event}
       breadcrumbLabel="Immigration News"
       pageUrl="/immigration-news/"
     />

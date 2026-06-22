@@ -3,13 +3,24 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import SidebarWidgets from "./SidebarWidgets";
-import RelatedArticles from "./RelatedArticles";
 import { recordInteraction } from "@/app/actions/interactions";
-
 import Breadcrumb from "./Breadcrumb";
 import { fetchReadMoreArticles } from "@/app/actions/article";
-import FAQAccordion from "./FAQAccordion";
+import dynamic from 'next/dynamic';
+
+const SidebarWidgets = dynamic(() => import('./SidebarWidgets'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-slate-100 rounded-xl h-[400px] w-full"></div>
+});
+
+const RelatedArticles = dynamic(() => import('./RelatedArticles'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-slate-100 rounded-xl h-40 w-full mb-6"></div>
+});
+
+const FAQAccordion = dynamic(() => import('./FAQAccordion'), {
+  ssr: false,
+});
 
 const FALLBACK_IMAGE = "/images/logo.png";
 

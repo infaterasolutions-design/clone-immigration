@@ -3,7 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import SidebarWidgets from "@/components/SidebarWidgets";
+import dynamic from 'next/dynamic';
+
+const SidebarWidgets = dynamic(() => import('@/components/SidebarWidgets'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-slate-100 rounded-xl h-[400px] w-full"></div>
+});
 import { getLiveEventById } from "@/lib/liveUpdatesData";
 import { timeAgo } from "@/lib/utils";
 
@@ -148,9 +153,7 @@ const LiveUpdateCard = ({ update, pageUrl }) => {
  *  - breadcrumbLabel: string — Label shown in breadcrumb (e.g. "ICE News")
  *  - pageUrl: string — The current page URL path (e.g. "/ice-news/")
  */
-export default function LiveUpdatePageContent({ eventId, breadcrumbLabel, pageUrl }) {
-  const [event, setEvent] = useState(null);
-  const [eventLoading, setEventLoading] = useState(true);
+export default function LiveUpdatePageContent({ event, breadcrumbLabel, pageUrl }) {
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
   const [visibleCount, setVisibleCount] = useState(3);
   const [isLoading, setIsLoading] = useState(false);
@@ -160,23 +163,6 @@ export default function LiveUpdatePageContent({ eventId, breadcrumbLabel, pageUr
     const interval = setInterval(() => setTick((t) => t + 1), 60000);
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    async function load() {
-      const data = await getLiveEventById(eventId);
-      setEvent(data);
-      setEventLoading(false);
-    }
-    load();
-  }, [eventId]);
-
-  if (eventLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
   if (!event) {
     return (

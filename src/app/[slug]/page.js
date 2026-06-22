@@ -186,9 +186,11 @@ export default async function SlugPage({ params }) {
 
   if (liveEventId) {
     const label = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const { getLiveEventById } = await import("@/lib/liveUpdatesData");
+    const event = await getLiveEventById(liveEventId);
     return (
       <LiveUpdatePageContent
-        eventId={liveEventId}
+        event={event}
         breadcrumbLabel={label}
         pageUrl={`/${slug}/`}
       />

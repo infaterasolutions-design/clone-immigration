@@ -76,7 +76,7 @@ export default function RootLayout({ children }) {
       <body suppressHydrationWarning className="antialiased overflow-x-hidden min-h-screen flex flex-col">
         <Script
           id="material-symbols-font"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               var link = document.createElement('link');

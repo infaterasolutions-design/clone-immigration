@@ -401,7 +401,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
             
             {article.cluster_slug && (
               <div className="bg-[#f0fdf4] text-[#166534] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
-                <Link href={`/${article.cluster_slug}/`} className="hover:opacity-80 transition-opacity">
+                <Link prefetch={true} href={`/${article.cluster_slug}/`} className="hover:opacity-80 transition-opacity">
                   {article.clusterDisplayName || article.cluster_slug.toUpperCase().replace(/-/g, ' ')}
                 </Link>
               </div>
@@ -841,7 +841,7 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
                 </div>
                 <div ref={sliderRef} className="flex gap-4 md:gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x mt-2">
                   {readMoreArticles.map((art) => (
-                    <Link key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : (art.slug ? `/${art.slug}` : `/article/${art.id}`)} className="flex-shrink-0 w-[180px] md:w-[200px] snap-start group cursor-pointer block">
+                    <Link prefetch={true} key={art.id} href={art.cluster_slug || art.clusterSlug ? `/${art.cluster_slug || art.clusterSlug}/${art.slug}` : (art.slug ? `/${art.slug}` : `/article/${art.id}`)} className="flex-shrink-0 w-[180px] md:w-[200px] snap-start group cursor-pointer block">
                       <div className="relative aspect-[16/10] w-full overflow-hidden mb-3 rounded-md">
                         <Image width={300} height={200} quality={40} loading="lazy" decoding="async" sizes="280px" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={art.mainImage || FALLBACK_IMAGE} alt={art.title} />
                         <div className="absolute top-2 left-2 bg-primary px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-tighter rounded-sm">{art.categoryLabel}</div>

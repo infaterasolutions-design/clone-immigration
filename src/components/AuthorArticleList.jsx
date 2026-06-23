@@ -51,7 +51,7 @@ export default function AuthorArticleList({ initialArticles, authorName, totalCo
             key={article.id}
             className="group pb-4 mb-4 border-b border-slate-100 flex gap-4 md:gap-6"
           >
-            <Link href={articleUrl} className="flex-grow min-w-0">
+            <Link prefetch={true} href={articleUrl} className="flex-grow min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
                   {article.category_label}
@@ -75,7 +75,7 @@ export default function AuthorArticleList({ initialArticles, authorName, totalCo
               </p>
             </Link>
 
-            <Link
+            <Link prefetch={true}
               href={articleUrl}
               className="w-[110px] h-[75px] md:w-[160px] md:h-[106px] overflow-hidden flex-shrink-0 block bg-slate-100 relative rounded-md"
             >

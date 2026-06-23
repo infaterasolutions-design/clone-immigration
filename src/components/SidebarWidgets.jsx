@@ -105,7 +105,7 @@ export default function SidebarWidgets({ className = "", showLiveCoverage = true
           <h3 className="font-headline font-extrabold text-sm tracking-widest uppercase text-primary mb-6">Latest News</h3>
           <div className="space-y-6">
             {latestNews.length > 0 ? latestNews.map((article, idx) => (
-              <Link key={article.id} href={article.cluster_slug ? `/${article.cluster_slug}/${article.slug}` : (article.slug ? `/${article.slug}` : `/article/${article.id}`)} className="group block">
+              <Link prefetch={true} key={article.id} href={article.cluster_slug ? `/${article.cluster_slug}/${article.slug}` : (article.slug ? `/${article.slug}` : `/article/${article.id}`)} className="group block">
                 <div suppressHydrationWarning className={`text-xs font-bold mb-1 ${idx === 0 ? 'text-tertiary' : 'text-slate-500'}`}>
                   {getTimeAgo(article.published_at)}
                 </div>
@@ -134,7 +134,7 @@ export default function SidebarWidgets({ className = "", showLiveCoverage = true
               <div key={article.id} className="flex gap-4">
                 <span className="text-3xl font-black text-outline-variant/30 font-headline italic">0{idx + 1}</span>
                 <div>
-                  <Link href={article.cluster_slug ? `/${article.cluster_slug}/${article.slug}` : (article.slug ? `/${article.slug}` : `/article/${article.id}`)}>
+                  <Link prefetch={true} href={article.cluster_slug ? `/${article.cluster_slug}/${article.slug}` : (article.slug ? `/${article.slug}` : `/article/${article.id}`)}>
                     <h4 className="text-sm font-bold leading-snug text-slate-800 hover:text-primary transition-colors cursor-pointer">{article.title}</h4>
                   </Link>
                   <span className="text-[11px] text-on-surface-variant font-medium uppercase tracking-tighter">

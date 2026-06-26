@@ -5,12 +5,36 @@ import { supabase } from "./supabase";
  */
 export async function getAdminUser() {
   try {
+    // Temporarily suppress the specific Supabase console.error that triggers Next.js overlay
+    let originalConsoleError;
+    if (typeof console !== 'undefined') {
+      originalConsoleError = console.error;
+      console.error = (...args) => {
+        const msg = args[0]?.message || args[0] || '';
+        if (typeof msg === 'string' && msg.includes('Refresh Token Not Found')) return;
+        originalConsoleError.apply(console, args);
+      };
+    }
+
     const { data: { session }, error } = await supabase.auth.getSession();
     
+    if (typeof console !== 'undefined' && originalConsoleError) {
+      console.error = originalConsoleError;
+    }
+    
     if (error) {
-      // If the refresh token is invalid, we should sign out to clear the local storage/cookies
+      // If the refresh token is invalid, clear local storage aggressively
       if (error.message?.includes("Refresh Token Not Found") || error.status === 400) {
-        await supabase.auth.signOut();
+        if (typeof window !== "undefined") {
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach(k => localStorage.removeItem(k));
+        }
       }
       return null;
     }

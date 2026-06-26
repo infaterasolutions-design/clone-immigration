@@ -28,10 +28,11 @@ export default function AdminArticles() {
 
   async function fetchArticles() {
     setLoading(true);
-    let { data, error } = await supabase.from("articles").select("*").order("published_at", { ascending: false, nullsFirst: false });
+    const selectCols = "id, title, is_featured, category_label, last_reviewed_date, published_at, author_name, status, likes_count, saves_count, shares_count, slug";
+    let { data, error } = await supabase.from("articles").select(selectCols).order("published_at", { ascending: false, nullsFirst: false });
     if (error) {
       console.error("Error fetching articles:", error);
-      const fallback = await supabase.from("articles").select("*");
+      const fallback = await supabase.from("articles").select(selectCols);
       data = fallback.data;
     }
     setArticles(data || []);

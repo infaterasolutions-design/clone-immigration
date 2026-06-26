@@ -1,16 +1,11 @@
 import { supabase } from "./supabase";
 
-let cachedCategories = null;
-let cacheTimestamp = 0;
-const CACHE_TTL = 120000; // 2 minutes
+const CACHE_TTL = 1000 * 60 * 60; // 1 hour
 
-/**
- * Fetch all categories from the normalized table and
- * build a tree structure: parents with nested children arrays.
- */
 export async function getCategories() {
-  if (cachedCategories && Date.now() - cacheTimestamp < CACHE_TTL) {
-    return cachedCategories;
+  // Use global to persist across Next.js HMR/Fast Refresh
+  if (global.cachedCategories && Date.now() - global.cacheTimestamp < CACHE_TTL) {
+    return global.cachedCategories;
   }
 
   const { data, error } = await supabase
@@ -24,12 +19,9 @@ export async function getCategories() {
   }
 
   const rows = data || [];
-
-  // Separate parents and children
   const parents = rows.filter((r) => !r.parent_slug);
   const children = rows.filter((r) => r.parent_slug);
 
-  // Attach children to each parent
   const tree = parents.map((p) => ({
     ...p,
     subcategories: children
@@ -37,8 +29,8 @@ export async function getCategories() {
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)),
   }));
 
-  cachedCategories = tree;
-  cacheTimestamp = Date.now();
+  global.cachedCategories = tree;
+  global.cacheTimestamp = Date.now();
   return tree;
 }
 

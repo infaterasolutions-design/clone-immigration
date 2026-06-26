@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { getCategories } from "@/lib/categoryConfig";
 import { subscribeEmail } from "@/app/actions/subscribe";
 import MegaMenu from "./MegaMenu";
-export default function Header() {
+export default function Header({ initialCategories = [] }) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,7 +33,8 @@ export default function Header() {
     setSuggestions([]);
   };
   const [searchQuery, setSearchQuery] = useState("");
-  const [CATEGORIES, setCATEGORIES] = useState([]);
+  // Use server-provided categories immediately to prevent flashing/late rendering
+  const [CATEGORIES, setCATEGORIES] = useState(initialCategories);
   const mobileSearchInputRef = useRef(null);
   
   const [showSubscribeModal, setShowSubscribeModal] = useState(false);
@@ -116,11 +116,6 @@ export default function Header() {
       document.body.style.overflow = "";
     };
   }, [menuOpen, searchOpen]);
-
-  // Load categories on mount
-  useEffect(() => {
-    getCategories().then(cats => setCATEGORIES(cats));
-  }, []);
 
   const closeMenu = useCallback(() => {
     setMenuOpen(false);

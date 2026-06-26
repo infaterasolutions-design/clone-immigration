@@ -19,43 +19,42 @@ export async function getNextArticle(currentId) {
   return allArts[currentIndex + 1];
 }
 
-export async function getArticlesByCategorySlug(categorySlug) {
+const LIGHT_ARTICLE_FIELDS = "id, title, slug, category_slug, sub_category_slug, cluster_slug, category_label, published_at, read_time, author_name, author_role, author_image, main_image, image_caption, sub_title, status, is_featured";
 
+export async function getArticlesByCategorySlug(categorySlug) {
   const { data, error } = await supabase.from('articles')
-    .select('*')
+    .select(LIGHT_ARTICLE_FIELDS)
     .eq('category_slug', categorySlug)
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
-    .order('published_at', { ascending: false });
+    .order('published_at', { ascending: false })
+    .limit(100);
   
-  const mapped = (data || []).map(mapArticle);
-  return mapped;
+  return (data || []).map(mapArticle);
 }
 
 export async function getArticlesBySubcategorySlug(categorySlug, subCategorySlug) {
-
   const { data, error } = await supabase.from('articles')
-    .select('*')
+    .select(LIGHT_ARTICLE_FIELDS)
     .eq('category_slug', categorySlug)
     .eq('sub_category_slug', subCategorySlug)
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
-    .order('published_at', { ascending: false });
+    .order('published_at', { ascending: false })
+    .limit(100);
   
-  const mapped = (data || []).map(mapArticle);
-  return mapped;
+  return (data || []).map(mapArticle);
 }
 
 export async function getAllArticles() {
-
   const { data, error } = await supabase.from('articles')
-    .select('*')
+    .select(LIGHT_ARTICLE_FIELDS)
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
-    .order('published_at', { ascending: false });
+    .order('published_at', { ascending: false })
+    .limit(100); // Limit homepage fetch to prevent massive memory crash
   
-  const mapped = data ? data.map(mapArticle) : [];
-  return mapped;
+  return data ? data.map(mapArticle) : [];
 }
 
 function mapArticle(a) {

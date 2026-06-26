@@ -143,9 +143,11 @@ export async function fetchArticleInitialDataBySlug(slug) {
   return resolveArticle(data);
 }
 
+const LIGHT_ARTICLE_SELECT = 'id, title, slug, category_slug, sub_category_slug, cluster_slug, category_label, published_at, read_time, author_name, author_role, author_image, main_image, image_caption, sub_title, status, is_featured, location:locations!location_id(id, name, slug, parent_id)';
+
 export async function fetchReadMoreArticles(currentArticleId, categorySlug) {
   let query = supabase.from('articles')
-    .select(ARTICLE_SELECT)
+    .select(LIGHT_ARTICLE_SELECT)
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
     .neq('id', currentArticleId)

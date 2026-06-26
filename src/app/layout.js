@@ -60,9 +60,14 @@ export const viewport = {
   maximumScale: 1,
 };
 
-export default function RootLayout({ children }) {
+import { getCategories } from "@/lib/categoryConfig";
+
+export default async function RootLayout({ children }) {
   // Use environment variable, fallback to empty string if not set
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER';
+
+  // Fetch categories on the server to prevent navbar flashing
+  const categories = await getCategories();
 
   return (
     <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable} ${poppins.variable}`} suppressHydrationWarning={true}>
@@ -93,7 +98,7 @@ export default function RootLayout({ children }) {
         
         <SocialSidebar />
         
-        <PublicLayoutWrapper>
+        <PublicLayoutWrapper categories={categories}>
           {children}
         </PublicLayoutWrapper>
       </body>

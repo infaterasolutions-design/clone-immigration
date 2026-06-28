@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { getLocationBySlug, getArticlesByLocationId } from "@/app/actions/locationActions";
 import { getActiveSponsoredContent } from "@/app/actions/sponsoredActions";
 import CityLocationPage from "@/components/CityLocationPage";
-
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.unitedstatesimmigrationnews.com").replace(/\/+$/, "");
 
 // ISR
@@ -274,7 +274,7 @@ export default async function SubcategoryPage({ params }) {
       '@type': 'Person',
       name: article.authorName,
       jobTitle: article.authorRole,
-      url: `${SITE_URL}/author/${article.authorName?.toLowerCase()}`,
+      url: `${SITE_URL}/author/${article.authorName?.toLowerCase().replace(/\s+/g, '-')}`,
     },
     publisher: {
       '@type': 'NewsMediaOrganization',
@@ -293,6 +293,12 @@ export default async function SubcategoryPage({ params }) {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Home", url: SITE_URL },
+        { name: article.categoryLabel || article.category_label || "Category", url: `${SITE_URL}/${article.categorySlug || article.category_slug || slug}` },
+        { name: article.sub_category_label || "Subcategory", url: `${SITE_URL}/${article.categorySlug || article.category_slug || slug}/${article.subCategorySlug || article.sub_category_slug || sub}` },
+        { name: article.title, url: `${SITE_URL}/${article.cluster_slug || article.categorySlug || article.category_slug}/${article.slug}` }
+      ]} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

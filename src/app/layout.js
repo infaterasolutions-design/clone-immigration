@@ -61,7 +61,7 @@ export const viewport = {
 };
 
 import { getCategories } from "@/lib/categoryConfig";
-
+import SiteSchema from "@/components/SiteSchema";
 export default async function RootLayout({ children }) {
   // Use environment variable, fallback to empty string if not set
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER';
@@ -97,7 +97,7 @@ export default async function RootLayout({ children }) {
         <GoogleAnalytics gaId="G-3C6CJJ0R09" />
         
         <SocialSidebar />
-        
+        <SiteSchema />
         <PublicLayoutWrapper categories={categories}>
           {children}
         </PublicLayoutWrapper>

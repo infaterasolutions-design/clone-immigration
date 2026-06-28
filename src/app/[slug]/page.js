@@ -10,7 +10,7 @@ import { getCategoryBySlug, isParentCategory } from "@/lib/categoryConfig";
 import { getLiveEventIdByTopicUrl } from "@/lib/liveEventUrls";
 import { getLocationBySlug, getArticlesByState, getChildLocations } from "@/app/actions/locationActions";
 import StateLocationPage from "@/components/StateLocationPage";
-
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.unitedstatesimmigrationnews.com").replace(/\/+$/, "");
 
 // ISR — automatically refresh cached page data every 60 seconds
@@ -78,7 +78,7 @@ export async function generateMetadata({ params }) {
   // ─── Otherwise, treat as article ───
   const { data: article } = await supabase
     .from("articles")
-    .select("title, sub_title, main_image, author_name, category_label, slug")
+    .select("title, sub_title, main_image, author_name, category_label, category_slug, slug")
     .eq("slug", slug)
     .single();
 
@@ -302,7 +302,7 @@ export default async function SlugPage({ params }) {
       '@type': 'Person',
       name: article.authorName,
       jobTitle: article.authorRole,
-      url: `${SITE_URL}/author/${article.authorName?.toLowerCase()}`,
+      url: `${SITE_URL}/author/${article.authorName?.toLowerCase().replace(/\s+/g, '-')}`,
     },
     publisher: {
       '@type': 'NewsMediaOrganization',
@@ -321,6 +321,11 @@ export default async function SlugPage({ params }) {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Home", url: SITE_URL },
+        { name: article.categoryLabel || article.category_label || "News", url: `${SITE_URL}/${article.categorySlug || article.category_slug || article.slug.split('-')[0]}` },
+        { name: article.title, url: `${SITE_URL}/${article.slug}` }
+      ]} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

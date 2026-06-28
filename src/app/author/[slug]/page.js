@@ -59,7 +59,7 @@ export default async function AuthorPage({ params }) {
     jobTitle: author.role,
     description: author.bio,
     url: `${SITE_URL}/author/${author.slug}`,
-    image: author.photo_url || undefined,
+    ...(author.photo_url ? { image: author.photo_url } : {}),
     worksFor: {
       "@type": "NewsMediaOrganization",
       name: "United States Immigration News",

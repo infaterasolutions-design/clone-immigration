@@ -298,7 +298,10 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
   if (!article) return null;
 
   return (
-    <div id={`article-${article.id}`} className="article-wrapper" data-article-id={article.id} data-article-slug={article.cluster_slug ? `${article.cluster_slug}/${article.slug}` : article.slug}>
+    <div id={`article-${article.id}`} className="article-wrapper relative" data-article-id={article.id} data-article-slug={article.cluster_slug ? `${article.cluster_slug}/${article.slug}` : article.slug}>
+      {/* Sentinel for infinite scroll URL update */}
+      <div className="article-top-marker h-px w-full absolute top-0 left-0 pointer-events-none" data-article-id={article.id} data-article-slug={article.cluster_slug ? `${article.cluster_slug}/${article.slug}` : article.slug} data-article-title={article.title}></div>
+      
       <article className={`grid grid-cols-1 lg:grid-cols-8 gap-8 md:gap-12 relative ${!isFirst ? 'mt-4 md:mt-6 pt-4 border-t-2 border-slate-100' : ''}`}>
         {/* Floating Social Interaction Bar (Desktop) */}
         <aside className="hidden lg:flex flex-col items-end pt-[190px] pr-2 xl:pr-6 lg:col-span-1 relative z-30">

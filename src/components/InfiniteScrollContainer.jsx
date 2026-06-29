@@ -68,43 +68,55 @@ export default function InfiniteScrollContainer({ initialArticle, sidebarData, n
   useEffect(() => {
     if (visibilityObserverRef.current) visibilityObserverRef.current.disconnect();
 
+    let timeoutId = null;
+
     visibilityObserverRef.current = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const articleId = entry.target.getAttribute("data-article-id");
-            const articleSlug = entry.target.getAttribute("data-article-slug");
-            
-            if (articleId) {
-              // Use functional state update to avoid dependency issues
-              setVisibleArticle((prevVisibleId) => {
-                // Only update URL and state if the article actually changed
-                if (prevVisibleId !== articleId) {
-                  setTimeout(() => {
-                    if (articleSlug) {
-                      window.history.replaceState(null, "", `/${articleSlug}`);
-                    } else {
-                      window.history.replaceState(null, "", `/article/${articleId}`);
-                    }
-                  }, 0);
-                  return articleId;
-                }
-                return prevVisibleId;
-              });
-            }
+        // Find the intersecting marker
+        const intersectingEntry = entries.find(entry => entry.isIntersecting);
+        
+        if (intersectingEntry) {
+          const articleId = intersectingEntry.target.getAttribute("data-article-id");
+          const articleSlug = intersectingEntry.target.getAttribute("data-article-slug");
+          const articleTitle = intersectingEntry.target.getAttribute("data-article-title");
+          
+          if (articleId) {
+            // Use functional state update to avoid dependency issues
+            setVisibleArticle((prevVisibleId) => {
+              // Only update URL and state if the article actually changed
+              if (prevVisibleId !== articleId) {
+                if (timeoutId) clearTimeout(timeoutId);
+                
+                // Debounce to prevent flickering on boundary micro-scrolls
+                timeoutId = setTimeout(() => {
+                  if (articleSlug) {
+                    window.history.replaceState(null, "", `/${articleSlug}`);
+                  } else {
+                    window.history.replaceState(null, "", `/article/${articleId}`);
+                  }
+                  if (articleTitle) {
+                    document.title = `${articleTitle} | US Immigration News`;
+                  }
+                }, 150);
+                
+                return articleId;
+              }
+              return prevVisibleId;
+            });
           }
-        });
+        }
       },
-      { rootMargin: "-30% 0px -60% 0px", threshold: 0 } // Trigger when the article enters the upper-middle part of the screen
+      { rootMargin: "-10% 0px -30% 0px", threshold: 0 } // Trigger when the title enters the lower-middle viewport
     );
 
-    const wrappers = document.querySelectorAll(".article-wrapper");
-    wrappers.forEach((wrapper) => {
-      visibilityObserverRef.current.observe(wrapper);
+    const markers = document.querySelectorAll(".article-top-marker");
+    markers.forEach((marker) => {
+      visibilityObserverRef.current.observe(marker);
     });
 
     return () => {
       if (visibilityObserverRef.current) visibilityObserverRef.current.disconnect();
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [articles]); // Removed visibleArticle from dependencies
 

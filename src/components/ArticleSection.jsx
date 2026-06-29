@@ -390,16 +390,20 @@ export default function ArticleSection({ article, isFirst = false, customWidgets
           <div className="flex items-center gap-3 mb-5 md:mb-3 flex-wrap">
             {article.categorySlug && (
               <div className="bg-[#eef2ff] text-[#1e3a8a] px-3 py-1.5 rounded flex items-center gap-2 text-[11px] font-bold tracking-widest uppercase font-sans">
-                <Link href={`/${article.categorySlug}/`} className="hover:opacity-80 transition-opacity">
-                  {article.categoryLabel || article.categorySlug.toUpperCase().replace(/-/g, ' ')}
-                </Link>
-                {article.subCategorySlug && (
+                {article.subCategorySlug ? (
                   <>
-                    <span className="text-[#1e3a8a]/40 text-xs leading-none relative -top-[1px]">|</span>
                     <Link href={`/${article.categorySlug}/${article.subCategorySlug}/`} className="hover:opacity-80 transition-opacity">
                       {article.subCategorySlug.toUpperCase().replace(/-/g, ' ')}
                     </Link>
+                    <span className="text-[#1e3a8a]/40 text-xs leading-none relative -top-[1px]">|</span>
+                    <Link href={`/${article.categorySlug}/`} className="hover:opacity-80 transition-opacity">
+                      {article.categoryLabel || article.categorySlug.toUpperCase().replace(/-/g, ' ')}
+                    </Link>
                   </>
+                ) : (
+                  <Link href={`/${article.categorySlug}/`} className="hover:opacity-80 transition-opacity">
+                    {article.categoryLabel || article.categorySlug.toUpperCase().replace(/-/g, ' ')}
+                  </Link>
                 )}
               </div>
             )}

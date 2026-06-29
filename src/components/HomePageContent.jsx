@@ -111,7 +111,7 @@ export default function HomePageContent({ articles = [], tickerItems = [], video
                     {heroArticle.title}
                   </h1>
                   <p className="text-on-surface-variant text-sm md:text-base leading-relaxed line-clamp-3">
-                    {(heroArticle.paragraphs?.[0]?.replace(/<[^>]*>?/gm, '') || heroArticle.imageCaption || "").slice(0, 150)}...
+                    {(heroArticle.subTitle || heroArticle.paragraphs?.[0]?.replace(/<[^>]*>?/gm, '') || heroArticle.imageCaption || "").slice(0, 150)}...
                   </p>
                 </div>
               </Link>

@@ -113,9 +113,9 @@ export async function fetchNextArticleAction(slug, publishedAt) {
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
     .eq('is_indexed', true)
-    .gt('published_at', publishedAt)
+    .lt('published_at', publishedAt)
     .neq('slug', slug)
-    .order('published_at', { ascending: true })
+    .order('published_at', { ascending: false })
     .limit(1)
     .maybeSingle();
     

@@ -54,7 +54,7 @@
 			</div>
 
 			<!-- Center: Navigation -->
-			<nav id="site-navigation" class="main-navigation hidden lg:flex items-center justify-center flex-shrink-0">
+			<nav id="site-navigation" class="main-navigation hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
                 <?php
                 wp_nav_menu(
                     array(

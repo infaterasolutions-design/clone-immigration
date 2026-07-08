@@ -1,0 +1,810 @@
+@import "tailwindcss";
+@source "./**/*.php";
+
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/container-queries";
+
+@theme {
+  --color-on-primary: #ffffff;
+  --color-inverse-primary: #b7c4ff;
+  --color-surface-container-high: #e7e8e9;
+  --color-on-secondary-fixed-variant: #35437b;
+  --color-on-secondary-fixed: #03164d;
+  --color-surface-tint: #2151da;
+  --color-primary-fixed: #dce1ff;
+  --color-on-surface: #191c1d;
+  --color-on-surface-variant: #434655;
+  --color-surface-container-highest: #e1e3e4;
+  --color-surface-container-low: #f3f4f5;
+  --color-on-primary-fixed: #001551;
+  --color-on-secondary: #ffffff;
+  --color-secondary-fixed: #dce1ff;
+  --color-secondary: #4d5b94;
+  --color-on-tertiary-container: #ffc9b7;
+  --color-secondary-container: #b0befe;
+  --color-on-primary-container: #cad3ff;
+  --color-primary: #1c4ed8;
+  --color-background: #f8f9fa;
+  --color-surface-variant: #e1e3e4;
+  --color-tertiary-container: #a73400;
+  --color-outline-variant: #c4c5d7;
+  --color-on-error: #ffffff;
+  --color-surface-dim: #d9dadb;
+  --color-on-tertiary-fixed: #390c00;
+  --color-surface-bright: #f8f9fa;
+  --color-on-error-container: #93000a;
+  --color-error-container: #ffdad6;
+  --color-secondary-fixed-dim: #b7c4ff;
+  --color-on-background: #191c1d;
+  --color-inverse-on-surface: #f0f1f2;
+  --color-tertiary-fixed: #ffdbcf;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-tertiary: #ffffff;
+  --color-primary-fixed-dim: #b7c4ff;
+  --color-surface-container: #edeeef;
+  --color-outline: #747686;
+  --color-on-tertiary-fixed-variant: #832700;
+  --color-primary-container: #1d4ed8;
+  --color-on-secondary-container: #3d4c83;
+  --color-error: #ba1a1a;
+  --color-tertiary: #7f2500;
+  --color-on-primary-fixed-variant: #0039b5;
+  --color-tertiary-fixed-dim: #ffb59c;
+  --color-surface: #f8f9fa;
+  --color-inverse-surface: #2e3132;
+
+  --font-headline: "Plus Jakarta Sans", var(--font-sans);
+  --font-body: "Inter", var(--font-sans);
+  --font-label: "Inter", var(--font-sans);
+  --font-display: "Plus Jakarta Sans", var(--font-sans);
+
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.headline-font { font-family: var(--font-headline); }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Force sharp edges globally based on the html provided */
+*, *::before, *::after { border-radius: 0px !important; }
+
+/* Navigation dropdown animation */
+.nav-dropdown {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.2s ease-out;
+}
+.nav-item:hover .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Specific rounding override */
+.video-card-rounded, .video-card-rounded img { border-radius: 12px !important; }
+
+/* Author avatar circular override — needed because the global * rule strips border-radius */
+.author-avatar, .author-avatar img { border-radius: 50% !important; }
+
+/* Tags rounded pill override */
+.rounded-pill { border-radius: 9999px !important; }
+
+/* Specific style for pulse animation from live updates page */
+@keyframes pulse-red {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.animate-pulse-red {
+    animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Base prose styles from article page */
+.prose p:not(.not-prose *) { margin-bottom: 1.5rem; line-height: 1.75; color: var(--color-on-surface-variant); }
+.prose h2:not(.not-prose *), .prose h3:not(.not-prose *) { font-family: var(--font-headline); font-weight: 700; font-size: 24px !important; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--color-on-surface); letter-spacing: -0.02em; }
+@media (min-width: 768px) {
+  .prose h2:not(.not-prose *) { font-size: 25px !important; }
+}
+.prose h4:not(.not-prose *), .prose h5:not(.not-prose *) { font-family: var(--font-headline); font-weight: 700; font-size: 20px !important; margin-top: 2rem; margin-bottom: 1rem; color: var(--color-on-surface); letter-spacing: -0.02em; }
+.prose blockquote:not(.not-prose *) { border-left: 4px solid var(--color-primary); padding-left: 1.5rem; font-style: italic; margin: 2rem 0; color: var(--color-on-surface); }
+
+/* Premium inline link styles */
+.article-content a:not(.btn):not(.button),
+.prose a:not(.btn):not(.button),
+.article-body a:not(.btn):not(.button) {
+  color: var(--color-primary);
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.14em;
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 38%, transparent);
+  transition:
+    color 220ms ease,
+    text-decoration-color 220ms ease,
+    text-underline-offset 220ms ease;
+}
+
+.article-content a:not(.btn):not(.button):hover,
+.article-content a:not(.btn):not(.button):focus-visible,
+.prose a:not(.btn):not(.button):hover,
+.prose a:not(.btn):not(.button):focus-visible,
+.article-body a:not(.btn):not(.button):hover,
+.article-body a:not(.btn):not(.button):focus-visible {
+  color: color-mix(in srgb, var(--color-primary) 60%, white);
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 95%, transparent);
+  text-underline-offset: 0.22em;
+}
+.prose ul:not(.not-prose *), .prose ol:not(.not-prose *) { margin: 1rem 0 !important; padding-left: 1.5rem; }
+.prose li:not(.not-prose *) { margin-bottom: 0.25rem !important; line-height: 1.65; }
+.prose li:not(.not-prose *) > p { margin-bottom: 0 !important; }
+.prose li:not(.not-prose *):last-child { margin-bottom: 0 !important; }
+
+/* TipTap Editor — tighten bullet spacing inside dark admin editor */
+.ProseMirror ul, .ProseMirror ol { margin: 0.75rem 0 !important; padding-left: 1.5rem; }
+.ProseMirror li { margin-bottom: 0.15rem !important; }
+.ProseMirror li > p { margin-bottom: 0 !important; }
+/* TipTap Editor — consistent spacing to prevent text jumping when toggling headings */
+.prose.prose-lg .ProseMirror h1, .ProseMirror h1,
+.prose.prose-lg .ProseMirror h2, .ProseMirror h2,
+.prose.prose-lg .ProseMirror h3, .ProseMirror h3,
+.prose.prose-lg .ProseMirror h4, .ProseMirror h4,
+.prose.prose-lg .ProseMirror p, .ProseMirror p {
+  margin-top: 0 !important;
+  margin-bottom: 0.75rem !important;
+}
+.prose.prose-lg .ProseMirror * + * {
+  margin-top: 0 !important;
+}
+.prose .info-callout {
+    background-color: #f3f6fc;
+    border: 1px solid #dce2ed;
+    padding: 1.5rem 2rem;
+    border-radius: 4px;
+    margin: 2.5rem 0;
+    color: #334155; 
+}
+.prose .info-callout h1, 
+.prose .info-callout h2, 
+.prose .info-callout h3, 
+.prose .info-callout h4 {
+    color: #1e40af;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+.prose .info-callout h1::before, 
+.prose .info-callout h2::before, 
+.prose .info-callout h3::before, 
+.prose .info-callout h4::before {
+    content: "";
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e40af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M12 16v-4'%3E%3C/path%3E%3Cpath d='M12 8h.01'%3E%3C/path%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+}
+.prose .info-callout p {
+    color: inherit;
+    margin-bottom: 0.5rem;
+}
+.prose .info-callout p:last-child {
+    margin-bottom: 0;
+}
+.prose .info-callout ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+.prose .info-callout li {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+.prose .info-callout li::marker {
+    color: #1e40af;
+}
+
+/* =========================================
+   Google Translate External Overrides 
+   ========================================= */
+body {
+  top: 0px !important; 
+}
+
+.skiptranslate.goog-te-banner-frame {
+  display: none !important;
+}
+
+#goog-gt-tt {
+  display: none !important;
+}
+
+.goog-tooltip:hover {
+  display: none !important;
+}
+
+/* Force standard font and look on the widget itself */
+.goog-te-gadget {
+  font-family: inherit !important;
+  color: transparent !important;
+  white-space: nowrap;
+}
+
+.goog-te-gadget .goog-te-combo {
+  color: #334155;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  background-color: white;
+  width: 100%;
+}
+
+.goog-te-gadget span {
+  display: none;
+}
+
+@keyframes shake-vibrate {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.animate-vibrate {
+  animation: shake-vibrate 0.3s infinite;
+}
+
+@keyframes slowMotionFade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slowMotionFade {
+  animation: slowMotionFade 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.animate-progress {
+  animation: progress 10s linear infinite;
+}
+
+/* =========================================
+   Mobile Responsive Utilities
+   ========================================= */
+
+/* Mobile Ad placement between sections */
+.mobile-ad-slot {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-ad-slot {
+    display: block;
+    padding: 16px 0;
+    text-align: center;
+  }
+
+  /* Hide desktop-only sidebar widgets on mobile */
+  .desktop-sidebar-only {
+    display: none !important;
+  }
+
+  /* Touch targets are handled per-component via padding */
+}
+
+/* Tablet breakpoint adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-stack {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Smooth image loading — handled natively by Next.js Image component */
+img {
+  opacity: 1;
+}
+
+/* Admin Dashboard UI Badges */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-badge-active { background: #059669; color: white; }
+.admin-badge-inactive { background: #3f3f46; color: #a1a1aa; }
+.admin-badge-scheduled { background: #4f46e5; color: white; }
+
+/* =========================================
+   Embed & Social Media Styles (Frontend)
+   ========================================= */
+.embed-block, .html-embed-block {
+  margin: 2rem auto !important;
+  display: block;
+  width: 100%;
+  clear: both;
+}
+
+.embed-width-small {
+  max-width: 500px !important;
+}
+
+.embed-width-medium {
+  max-width: 800px !important;
+}
+
+.embed-width-full {
+  max-width: 100% !important;
+}
+
+.embed-responsive {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.embed-twitter-placeholder, .embed-link-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  background: white;
+}
+
+/* Ensure iframes in embeds are responsive */
+.embed-block iframe, .html-embed-block iframe {
+  max-width: 100%;
+}
+
+/* Fix for Twitter/X script loading on frontend */
+.html-embed-content iframe {
+  margin: 0 auto !important;
+}
+
+/* ── Drop Cap styles ───────────────────────── */
+
+/* Modern path — only targets first p, 
+   NOT if first element is ul/ol/li/h1/h2 etc */
+.drop-cap-article > p:first-of-type::first-letter,
+.drop-cap-first::first-letter {
+  float: left;
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 0.82;
+  margin-right: 8px;
+  margin-top: 6px;
+  margin-bottom: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #0f172a;
+}
+
+/* Tailwind prose override */
+.prose .drop-cap-article > p:first-of-type::first-letter,
+.prose .drop-cap-first::first-letter {
+  float: left;
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 0.82;
+  margin-right: 8px;
+  margin-top: 6px;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #0f172a;
+}
+
+/* EXPLICITLY RESET — bullet points, 
+   lists, headings, blockquotes, images */
+.drop-cap-article ul::first-letter,
+.drop-cap-article ol::first-letter,
+.drop-cap-article li::first-letter,
+.drop-cap-article li p::first-letter,
+.drop-cap-article h1::first-letter,
+.drop-cap-article h2::first-letter,
+.drop-cap-article h3::first-letter,
+.drop-cap-article h4::first-letter,
+.drop-cap-article blockquote::first-letter,
+.drop-cap-article figure::first-letter,
+.drop-cap-article table::first-letter,
+.drop-cap-article strong::first-letter,
+.drop-cap-article em::first-letter,
+.prose .drop-cap-article ul::first-letter,
+.prose .drop-cap-article ol::first-letter,
+.prose .drop-cap-article li::first-letter,
+.prose .drop-cap-article li p::first-letter {
+  float: none !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  font-family: inherit !important;
+  color: inherit !important;
+  margin: 0 !important;
+  line-height: inherit !important;
+}
+
+/* Clearfix after drop cap paragraph */
+.drop-cap-article > p:first-of-type::after,
+.drop-cap-first::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .drop-cap-article > p:first-of-type::first-letter,
+  .drop-cap-first::first-letter {
+    color: #f1f5f9;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .drop-cap-article > p:first-of-type::first-letter,
+  .drop-cap-first::first-letter {
+    font-size: 3.5rem;
+    margin-right: 6px;
+    margin-top: 4px;
+  }
+}
+
+/* ── Article heading spacing fix ──────────────── */
+
+/* Override Tailwind prose default heading margins */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  margin-top: 0.8em !important;
+  margin-bottom: 0.3em !important;
+}
+
+/* Tighten gap between heading and 
+   the paragraph that follows it */
+.prose h2 + p,
+.prose h3 + p,
+.prose h4 + p {
+  margin-top: 0 !important;
+}
+
+/* Tighten gap between paragraph 
+   and the heading that follows it */
+.prose p + h2,
+.prose p + h3,
+.prose p + h4 {
+  margin-top: 0.8em !important;
+}
+
+/* Remove double spacing when heading 
+   follows a list or blockquote */
+.prose ul + h2,
+.prose ol + h2,
+.prose blockquote + h2 {
+  margin-top: 1.4em !important;
+}
+
+/* Mobile — slightly tighter */
+@media (max-width: 640px) {
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    margin-top: 1.2em !important;
+    margin-bottom: 0.3em !important;
+  }
+}
+
+\n/* ── Tiptap Editor heading spacing fix ──────── */
+
+/* Target ONLY inside the admin Tiptap editor */
+/* Does NOT affect public article display */
+
+.tiptap-editor-content .ProseMirror h1,
+.tiptap-editor-content .ProseMirror h2,
+.tiptap-editor-content .ProseMirror h3,
+.tiptap-editor-content .ProseMirror h4 {
+  margin-top: 1.2em !important;
+  margin-bottom: 0.3em !important;
+  padding-top: 0 !important;
+  line-height: 1.3;
+}
+
+/* Remove extra space when heading is 
+   the very first element in editor */
+.tiptap-editor-content .ProseMirror > h1:first-child,
+.tiptap-editor-content .ProseMirror > h2:first-child,
+.tiptap-editor-content .ProseMirror > h3:first-child {
+  margin-top: 0 !important;
+}
+
+/* Tighten paragraph after heading */
+.tiptap-editor-content .ProseMirror h1 + p,
+.tiptap-editor-content .ProseMirror h2 + p,
+.tiptap-editor-content .ProseMirror h3 + p {
+  margin-top: 0.2em !important;
+}
+
+/* Tighten paragraph before heading */
+.tiptap-editor-content .ProseMirror p + h2,
+.tiptap-editor-content .ProseMirror p + h3,
+.tiptap-editor-content .ProseMirror p + h4 {
+  margin-top: 1.2em !important;
+}
+
+/* Fix gap when heading is selected/active 
+   — this is the main click bug fix */
+.tiptap-editor-content .ProseMirror .is-active,
+.tiptap-editor-content .ProseMirror .has-focus {
+  margin-top: 1.2em !important;
+  margin-bottom: 0.3em !important;
+}
+
+/* Fix Tiptap node gap plugin spacing
+   — this is what causes the jump on click */
+.tiptap-editor-content .ProseMirror .ProseMirror-gapcursor {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove default browser heading margins 
+   bleeding into Tiptap */
+.tiptap-editor-content .ProseMirror > * + * {
+  margin-top: 0.75em;
+}
+
+.tiptap-editor-content .ProseMirror > * + h2,
+.tiptap-editor-content .ProseMirror > * + h3,
+.tiptap-editor-content .ProseMirror > * + h4 {
+  margin-top: 1.2em;
+}
+
+/* Force links in the editor to not open on click */
+.tiptap-editor-content a {
+  pointer-events: none !important;
+  cursor: text !important;
+}
+
+/* Tiptap editor core styling */
+.tiptap-editor-content .ProseMirror {
+  outline: none;
+  min-height: 300px;
+  padding: 16px;
+}
+
+.tiptap-editor-content .ProseMirror p {
+  margin-top: 0;
+  margin-bottom: 0.75em;
+  line-height: 1.7;
+}
+
+.tiptap-editor-content .ProseMirror p:last-child {
+  margin-bottom: 0;
+}
+
+/* Placeholder text */
+.tiptap-editor-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
+
+
+/* =========================================
+   Responsive Tables (Fix mobile overflow)
+   ========================================= */
+.prose table, .tiptap-content table {
+  display: block !important;
+  overflow-x: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  -webkit-overflow-scrolling: touch;
+}
+.prose table th, .prose table td {
+  min-width: 100px;
+}
+
+@media (min-width: 1024px) {
+  .nav-links {
+    opacity: 1;
+    transition: opacity 200ms ease;
+  }
+
+  .search-open .nav-links {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .reuters-search-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .reuters-search-container form {
+    border-bottom: 1.5px solid transparent;
+    transition: border-color 250ms ease;
+    padding-bottom: 2px; /* Slight padding so border isn't touching text */
+  }
+
+  .search-open .reuters-search-container form {
+    border-bottom-color: var(--color-on-surface);
+  }
+
+  .reuters-search-input {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    border: none !important;
+    background: transparent;
+    transition: width 250ms ease;
+    outline: none !important;
+    font-size: 14px;
+    color: var(--color-on-surface);
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+
+  .reuters-search-input:focus,
+  .reuters-search-input:focus-visible,
+  .reuters-search-input:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .search-open .reuters-search-input.expanded {
+    width: 220px;
+    opacity: 1;
+    padding: 6px 8px; /* Standard padding */
+  }
+
+  .reuters-search-icon {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px !important;
+    color: var(--color-on-surface);
+    transition: box-shadow 180ms ease, transform 180ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .reuters-search-icon:hover {
+    background: var(--color-surface-container-lowest, #ffffff);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+
+  /* Remove hover effect from search icon when search is open */
+  .search-open .reuters-search-icon:hover {
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .reuters-close-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px !important;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-on-surface);
+    transition: box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .reuters-close-btn.visible {
+    display: flex;
+  }
+
+  .reuters-close-btn:hover {
+    background: var(--color-surface-container-lowest, #ffffff);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .reuters-search-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 100%;
+    min-width: 240px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .reuters-search-dropdown {
+    width: 320px;
+  }
+}
+
+/* Force hide native browser cross icons globally */
+.reuters-search-input::-ms-clear,
+.reuters-search-input::-ms-reveal {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.reuters-search-input::-webkit-search-decoration,
+.reuters-search-input::-webkit-search-cancel-button,
+.reuters-search-input::-webkit-search-results-button,
+.reuters-search-input::-webkit-search-results-decoration {
+  display: none !important;
+}
+
+.hamburger-btn {
+  transition: opacity 150ms ease;
+}
+
+.search-open .hamburger-btn {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Pagination UI */
+.pagination-ui .nav-links { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.pagination-ui .page-numbers { display: flex; align-items: center; justify-content: center; min-width: 40px; height: 40px; padding: 0 12px; border-radius: 9999px; font-weight: 700; font-size: 14px; color: #64748b; background-color: transparent; transition: all 0.2s; text-decoration: none; }
+.pagination-ui .page-numbers:hover:not(.current) { background-color: #f1f5f9; color: #0f172a; }
+.pagination-ui .page-numbers.current { background-color: #1e40af; color: white; }
+.pagination-ui .page-numbers.prev, .pagination-ui .page-numbers.next { background-color: #f8fafc; border: 1px solid #e2e8f0; color: #334155; border-radius: 9999px; padding: 0 20px; }
+.pagination-ui .page-numbers.prev:hover, .pagination-ui .page-numbers.next:hover { background-color: #1e40af; color: white; border-color: #1e40af; }
+.pagination-ui h2.screen-reader-text { display: none; }
+
+
+/* Animated Hamburger Menu */
+.js-mobile-menu-toggle.is-active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.js-mobile-menu-toggle.is-active span:nth-child(2) { opacity: 0; }
+.js-mobile-menu-toggle.is-active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+

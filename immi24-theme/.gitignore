@@ -1,0 +1,6 @@
+# Node modules
+node_modules/
+package-lock.json
+
+# WordPress specific ignores (optional, but good practice if testing locally inside the theme dir)
+# Do NOT ignore assets/css/tailwind-output.css since it is required for production.

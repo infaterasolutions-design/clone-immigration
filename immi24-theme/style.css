@@ -1,0 +1,16 @@
+/*
+Theme Name: Immi24 Custom Theme
+Theme URI: https://example.com
+Author: Antigravity
+Author URI: https://example.com
+Description: Custom WordPress theme converted from Next.js project. Features a simplified category structure and dynamic content.
+Version: 1.0.0
+Text Domain: immi24
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+*/
+
+/* 
+ * The main CSS is loaded via Tailwind CSS output enqueued in functions.php.
+ * This file serves primarily for WordPress theme declaration.
+ */

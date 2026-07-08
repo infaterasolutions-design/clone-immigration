@@ -98,6 +98,18 @@ body {
 /* Specific rounding override */
 .video-card-rounded, .video-card-rounded img { border-radius: 12px !important; }
 
+/* Custom Logo Constraint */
+.custom-logo-link img, .custom-logo {
+  max-height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+@media (min-width: 768px) {
+  .custom-logo-link img, .custom-logo {
+    max-height: 56px;
+  }
+}
+
 /* Author avatar circular override — needed because the global * rule strips border-radius */
 .author-avatar, .author-avatar img { border-radius: 50% !important; }
 

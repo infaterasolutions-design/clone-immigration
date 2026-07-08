@@ -40,10 +40,10 @@
 	<a class="skip-link screen-reader-text sr-only" href="#primary"><?php esc_html_e( 'Skip to content', 'immi24' ); ?></a>
 
 	<header id="masthead" class="sticky top-0 z-50 w-full bg-white border-b border-slate-200">
-		<div class="max-w-screen-2xl mx-auto flex items-center justify-between px-4 py-2 md:py-3 min-h-[60px]">
+		<div class="max-w-screen-2xl mx-auto flex items-center justify-between px-4 py-2 md:py-3 min-h-[60px] relative">
 			
 			<!-- Left: Logo -->
-			<div class="flex items-center flex-shrink-0 site-branding">
+			<div class="flex-1 flex items-center justify-start flex-shrink-0 site-branding">
                 <?php if ( has_custom_logo() ) : ?>
                     <?php the_custom_logo(); ?>
                 <?php else : ?>
@@ -54,13 +54,13 @@
 			</div>
 
 			<!-- Center: Navigation -->
-			<nav id="site-navigation" class="main-navigation hidden lg:block">
+			<nav id="site-navigation" class="main-navigation hidden lg:flex items-center justify-center flex-shrink-0">
                 <?php
                 wp_nav_menu(
                     array(
                         'theme_location' => 'primary',
                         'menu_id'        => 'primary-menu',
-                        'menu_class'     => 'flex items-center gap-6 text-sm font-semibold',
+                        'menu_class'     => 'flex items-center justify-center gap-6 text-sm font-semibold',
                         'container'      => false,
                         'fallback_cb'    => false,
                     )
@@ -69,7 +69,7 @@
 			</nav>
 
 			<!-- Right: Search + Mobile Toggle -->
-			<div class="right-section flex items-center gap-3 flex-shrink-0">
+			<div class="flex-1 right-section flex items-center justify-end gap-3 flex-shrink-0">
 				
                 <!-- Desktop Search -->
                 <div class="hidden lg:flex reuters-search-container js-search-container">

@@ -62,8 +62,11 @@
                 ?>
                 <ul class="space-y-3 text-sm">
                   <li><a href="<?php echo esc_url( home_url( '/about-us/' ) ); ?>" class="hover:text-primary transition-colors py-1 block">About Us</a></li>
+                  <li><a href="<?php echo esc_url( home_url( '/advertise-with-us/' ) ); ?>" class="hover:text-primary transition-colors py-1 block">Advertise With Us</a></li>
                   <li><a href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>" class="hover:text-primary transition-colors py-1 block">Contact Us</a></li>
+                  <li><a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>" class="hover:text-primary transition-colors py-1 block">Disclaimer</a></li>
                   <li><a href="<?php echo esc_url( home_url( '/privacy-policy/' ) ); ?>" class="hover:text-primary transition-colors py-1 block">Privacy Policy</a></li>
+                  <li><a href="<?php echo esc_url( home_url( '/terms-conditions/' ) ); ?>" class="hover:text-primary transition-colors py-1 block">Terms & Conditions</a></li>
                 </ul>
                 <?php
             }

@@ -32,10 +32,10 @@
           <div>
             <h4 class="font-bold uppercase tracking-widest text-xs mb-4 md:mb-6 text-slate-900">RESOURCES</h4>
             <ul class="space-y-3 text-sm">
-              <li><a href="#" class="hover:text-primary transition-colors py-1 block">Visa Fee Calculator</a></li>
-              <li><a href="#" class="hover:text-primary transition-colors py-1 block">USCIS Processing Times</a></li>
-              <li><a href="#" class="hover:text-primary transition-colors py-1 block">Visa Bulletin Archive</a></li>
-              <li><a href="#" class="hover:text-primary transition-colors py-1 block">H1B Lottery Data</a></li>
+              <li><a href="https://www.uscis.gov/feecalculator" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors py-1 block">Visa Fee Calculator</a></li>
+              <li><a href="https://egov.uscis.gov/processing-times" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors py-1 block">USCIS Processing Times</a></li>
+              <li><a href="https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors py-1 block">Visa Bulletin Archive</a></li>
+              <li><a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations/h-1b-electronic-registration-process" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors py-1 block">H1B Lottery Data</a></li>
               <li>
                 <a href="<?php bloginfo('rss2_url'); ?>" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors py-1 flex items-center gap-2">
                     <span class="material-symbols-outlined text-[16px]">rss_feed</span> RSS Feed
